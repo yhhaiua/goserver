@@ -6,6 +6,16 @@ import (
 	"github.com/yhhaiua/goserver/common/glog"
 )
 
+//MysqlConfig 连接配置
+type MysqlConfig struct {
+	Shost     string //ipport
+	Sdbname   string //数据库名
+	Suser     string //用户名
+	Spassword string //密码
+	Maxopen   int    //最大连接数
+	Maxidle   int    //最大空闲数
+}
+
 //MysqlDB Mysql连接结构
 type MysqlDB struct {
 	db             *sql.DB
@@ -13,14 +23,14 @@ type MysqlDB struct {
 }
 
 //NewMysql mysql连接创建
-func NewMysql(suser, spassword, shost, sdbname string, maxopen int, maxidle int) (mydb *MysqlDB, err error) {
+func NewMysql(Config *MysqlConfig) (mydb *MysqlDB, err error) {
 	mydb = newMysql()
-	sconmysql := suser + ":" + spassword + "@tcp(" + shost + ")/" + sdbname + "?charset=utf8mb4"
+	sconmysql := Config.Suser + ":" + Config.Spassword + "@tcp(" + Config.Shost + ")/" + Config.Sdbname + "?charset=utf8mb4"
 	mydb.db, err = sql.Open("mysql", sconmysql)
 	if err == nil {
 
-		mydb.db.SetMaxOpenConns(maxopen)
-		mydb.db.SetMaxIdleConns(maxidle)
+		mydb.db.SetMaxOpenConns(Config.Maxopen)
+		mydb.db.SetMaxIdleConns(Config.Maxidle)
 	}
 	if err != nil {
 		mydb = nil

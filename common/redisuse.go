@@ -6,6 +6,13 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+//RedisConfig 配置结构
+type RedisConfig struct {
+	Shostport string //ipport
+	Maxopen   int    //最大连接数
+	Maxidle   int    //最大空闲数
+}
+
 // RedisPool Redis连接结构
 type RedisPool struct {
 	p        *redis.Pool // redis connection pool
@@ -130,12 +137,12 @@ func (rc *RedisPool) Decr(key string) int64 {
 	return value
 }
 
-func (rc *RedisPool) start(config string) error {
+func (rc *RedisPool) start(config *RedisConfig) error {
 
-	rc.conninfo = config
+	rc.conninfo = config.Shostport
 	rc.dbNum = 0
 
-	rc.connectInit()
+	rc.connectInit(config)
 
 	c := rc.p.Get()
 	defer c.Close()
@@ -143,7 +150,7 @@ func (rc *RedisPool) start(config string) error {
 	return c.Err()
 }
 
-func (rc *RedisPool) connectInit() {
+func (rc *RedisPool) connectInit(config *RedisConfig) {
 	dialFunc := func() (c redis.Conn, err error) {
 		c, err = redis.Dial("tcp", rc.conninfo)
 		if err != nil {
@@ -159,15 +166,15 @@ func (rc *RedisPool) connectInit() {
 	}
 	// initialize a new pool
 	rc.p = &redis.Pool{
-		MaxIdle:     3,
-		MaxActive:   20,
+		MaxIdle:     config.Maxidle,
+		MaxActive:   config.Maxopen,
 		IdleTimeout: 300 * time.Second,
 		Dial:        dialFunc,
 	}
 }
 
 //NewRedis redis创建
-func NewRedis(config string) (adapter *RedisPool, err error) {
+func NewRedis(config *RedisConfig) (adapter *RedisPool, err error) {
 
 	adapter = newRedis()
 	err = adapter.start(config)
