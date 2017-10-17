@@ -1,0 +1,17 @@
+{
+  "duty":[
+	{
+		"id": "1100",
+		"loglvl": 0,
+		"redis": {
+		"host": "172.16.3.141:6379"
+		},
+		"mysql": {
+		"host": "172.16.2.57:3306",
+		"dbname": "duty_redis_141",
+		"user": "root",
+		"password": "123456"
+		}
+	}
+  ]
+}
