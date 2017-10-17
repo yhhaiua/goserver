@@ -53,6 +53,14 @@ func newMysql() *MysqlDB {
 	return newMysql
 }
 
+//HaveConnect 判断是否已经连接
+func (mydb *MysqlDB) HaveConnect() bool {
+	if mydb.db != nil && mydb.bodbconnection {
+		return true
+	}
+	return false
+}
+
 //Create 创建mysql通用表
 func (mydb *MysqlDB) Create(dbname string) error {
 

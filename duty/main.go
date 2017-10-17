@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/duty/logicduty"
 )

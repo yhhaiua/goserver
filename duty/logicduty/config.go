@@ -17,6 +17,12 @@ type stJSONConfig struct {
 	mmysqlconfig common.MysqlConfig //mysql连接信息
 }
 
+func (Config *stJSONConfig) isRead() bool {
+	if Config.readdata == 0 {
+		return true
+	}
+	return false
+}
 func (Config *stJSONConfig) configInit(serverid int) bool {
 
 	path := "./config/config.json"
