@@ -51,6 +51,21 @@ func (rc *RedisPool) Zrange(keyname string) ([]string, error) {
 	return redis.Strings(rc.do("ZRANGE", keyname, 0, -1, "WITHSCORES"))
 }
 
+// Zscore redis有序集合获取数值.
+func (rc *RedisPool) Zscore(keyname string, updatedate string) (string, error) {
+
+	return redis.String(rc.do("ZSCORE", keyname, updatedate))
+}
+
+// Zrem redis有序集合删除
+func (rc *RedisPool) Zrem(key string, updatedate string) error {
+	var err error
+	if _, err = rc.do("ZREM", key, updatedate); err != nil {
+		return err
+	}
+	return err
+}
+
 // Get redis获取value string.
 func (rc *RedisPool) Get(key string) (string, error) {
 

@@ -231,7 +231,6 @@ func (mydata *stMysqlRead) panmeHave(key string, pid int) bool {
 func (mydata *stMysqlRead) onlyidDataRead() {
 
 	rows, err := Instance().mysqldb().Query("SELECT * FROM GlobalOnlyid")
-
 	if err == nil {
 		defer rows.Close()
 		var i64onlyid int64
@@ -245,8 +244,9 @@ func (mydata *stMysqlRead) onlyidDataRead() {
 				i64onlyid, _ = strconv.ParseInt(Value, 10, 64)
 				if i64onlyid > 0 {
 					//保存到redis
-					Instance().redisdb().Set(globalonly, i64onlyid)
-					glog.Infof("redis添加玩家id %s, %d", globalonly, i64onlyid)
+					skey := globalonly + "_" + Key
+					Instance().redisdb().Set(skey, i64onlyid)
+					glog.Infof("redis添加玩家id %s, %d", skey, i64onlyid)
 				}
 			}
 		}

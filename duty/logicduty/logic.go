@@ -17,6 +17,7 @@ type Logicsvr struct {
 	redisConnect  *common.RedisPool
 	mysqlConnect  *common.MysqlDB
 	mysqlread     *stMysqlRead
+	mysqlwrite    *stMysqlWrite
 }
 
 var (
@@ -45,6 +46,8 @@ func (logic *Logicsvr) LogicInit(serverid int) bool {
 		logic.redisCon()
 		//mysql连接
 		logic.mysqlCon()
+		//定时读取redis改变数据到mysql中
+		logic.myslqWrite()
 		//定时读取mysql数据到redis中
 		logic.myslqRead()
 		return true
@@ -94,6 +97,10 @@ func (logic *Logicsvr) mysqlCon() {
 func (logic *Logicsvr) myslqRead() {
 	logic.mysqlread = new(stMysqlRead)
 	logic.mysqlread.Read()
+}
+func (logic *Logicsvr) myslqWrite() {
+	logic.mysqlwrite = new(stMysqlWrite)
+	logic.mysqlwrite.Write()
 }
 func (logic *Logicsvr) config() *stJSONConfig {
 	return &logic.mstJSONConfig

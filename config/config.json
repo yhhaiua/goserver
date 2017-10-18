@@ -4,7 +4,7 @@
 		"id": "1100",
 		"loglvl": 0,
 		"redis": {
-		"host": "172.16.3.141:6379"
+		"host": "172.16.3.141:6379",
 		"open":20,
 		"idle":5
 		},
@@ -12,7 +12,7 @@
 		"host": "172.16.2.57:3306",
 		"dbname": "duty_redis_141",
 		"user": "root",
-		"password": "123456"
+		"password": "123456",
 		"open":2000,
 		"idle":5
 		}

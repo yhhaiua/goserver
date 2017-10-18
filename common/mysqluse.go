@@ -94,9 +94,9 @@ func (mydb *MysqlDB) mysqltoredis(redisConnect *RedisPool, tablename string) {
 
 				//保存到redis
 				if redisConnect != nil {
-					redisKey := tablename + Key
+					redisKey := tablename + "_" + Key
 					redisConnect.Set(redisKey, Value)
-					glog.Infof("redis添加玩家帐号数据 %s, %s", redisKey, Value)
+					glog.Infof("redis添数据 %s, %s", redisKey, Value)
 				}
 			}
 		}
@@ -105,4 +105,27 @@ func (mydb *MysqlDB) mysqltoredis(redisConnect *RedisPool, tablename string) {
 
 		glog.Errorf("mysql读取错误 %s 1 %s", tablename, err)
 	}
+}
+
+//Update mysql更新通用数据
+func (mydb *MysqlDB) Update(skey, svale, tablename string) (err error) {
+
+	updatement := "update " + tablename + " set `value`=? where `key`=?"
+	stmt, err := mydb.Prepare(updatement)
+	if err == nil {
+		defer stmt.Close()
+		ret, err := stmt.Exec(svale, skey)
+		if err == nil {
+			if hs, _ := ret.RowsAffected(); hs == 0 {
+				insertment := "INSERT " + tablename + " set `key`=?,`value`=?"
+				stmtinstet, err := mydb.Prepare(insertment)
+				if err == nil {
+					defer stmtinstet.Close()
+					ret, err = stmtinstet.Exec(skey, svale)
+				}
+			}
+
+		}
+	}
+	return
 }
