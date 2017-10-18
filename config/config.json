@@ -2,7 +2,8 @@
   "duty":[
 	{
 		"id": "1100",
-		"loglvl": 0,
+		"loglvl":0,
+		"readdata":0,
 		"redis": {
 		"host": "172.16.3.141:6379",
 		"open":20,
@@ -14,6 +15,18 @@
 		"user": "root",
 		"password": "123456",
 		"open":2000,
+		"idle":5
+		}
+	}
+  ],
+  "login":[
+	{
+		"id": "1000",
+		"loglvl":0,
+		"port":":8001",
+		"redis": {
+		"host": "172.16.3.141:6379",
+		"open":20,
 		"idle":5
 		}
 	}

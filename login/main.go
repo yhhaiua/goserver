@@ -7,7 +7,6 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/yhhaiua/goserver/common/glog"
-	"github.com/yhhaiua/goserver/duty/logicduty"
 )
 
 func main() {
@@ -25,10 +24,10 @@ func main() {
 	svrid, error := strconv.Atoi(svrsplit[1])
 
 	if error == nil {
-		sdir := "./log/dutyServer_" + svrsplit[1]
+		sdir := "./log/loginServer_" + svrsplit[1]
 		glog.SetlogDir(sdir)
 
-		logicduty.Instance().LogicInit(svrid)
+		logiclogin.Instance().LogicInit(svrid)
 	}
 	glog.Flush()
 }
