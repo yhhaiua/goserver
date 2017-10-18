@@ -72,6 +72,12 @@ func (mydb *MysqlDB) Create(dbname string) error {
 
 //SavetoRedis mysql转存数据到redis
 func (mydb *MysqlDB) SavetoRedis(redisConnect *RedisPool, tablename string) {
+
+	go mydb.mysqltoredis(redisConnect, tablename)
+}
+
+func (mydb *MysqlDB) mysqltoredis(redisConnect *RedisPool, tablename string) {
+
 	sQuery := "SELECT * FROM " + tablename
 	rows, err := mydb.Query(sQuery)
 

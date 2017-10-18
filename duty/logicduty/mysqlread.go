@@ -263,7 +263,7 @@ func (mydata *stMysqlRead) accountDataRead() {
 
 		tablename := cAccountData + mapkey
 
-		go Instance().mysqldb().SavetoRedis(Instance().redisdb(), tablename)
+		Instance().mysqldb().SavetoRedis(Instance().redisdb(), tablename)
 	}
 
 }
