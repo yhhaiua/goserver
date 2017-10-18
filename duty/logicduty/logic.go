@@ -19,9 +19,10 @@ type Logicsvr struct {
 	mysqlread     *stMysqlRead
 }
 
-var instance *Logicsvr
-
-var mu sync.Mutex
+var (
+	instance *Logicsvr
+	mu       sync.Mutex
+)
 
 //Instance 实例化logicsvr
 func Instance() *Logicsvr {
@@ -100,4 +101,8 @@ func (logic *Logicsvr) config() *stJSONConfig {
 
 func (logic *Logicsvr) mysqldb() *common.MysqlDB {
 	return logic.mysqlConnect
+}
+
+func (logic *Logicsvr) redisdb() *common.RedisPool {
+	return logic.redisConnect
 }

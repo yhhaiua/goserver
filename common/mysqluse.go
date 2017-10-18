@@ -18,7 +18,7 @@ type MysqlConfig struct {
 
 //MysqlDB Mysql连接结构
 type MysqlDB struct {
-	db             *sql.DB
+	*sql.DB
 	bodbconnection bool
 }
 
@@ -26,13 +26,12 @@ type MysqlDB struct {
 func NewMysql(Config *MysqlConfig) (mydb *MysqlDB, err error) {
 	mydb = newMysql()
 	sconmysql := Config.Suser + ":" + Config.Spassword + "@tcp(" + Config.Shost + ")/" + Config.Sdbname + "?charset=utf8mb4"
-	mydb.db, err = sql.Open("mysql", sconmysql)
+	mydb.DB, err = sql.Open("mysql", sconmysql)
 	if err == nil {
 
-		mydb.db.SetMaxOpenConns(Config.Maxopen)
-		mydb.db.SetMaxIdleConns(Config.Maxidle)
-	}
-	if err != nil {
+		mydb.SetMaxOpenConns(Config.Maxopen)
+		mydb.SetMaxIdleConns(Config.Maxidle)
+	} else {
 		mydb = nil
 	}
 	return
@@ -40,7 +39,7 @@ func NewMysql(Config *MysqlConfig) (mydb *MysqlDB, err error) {
 
 //CheckPing 检测连接
 func (mydb *MysqlDB) CheckPing() error {
-	err := mydb.db.Ping()
+	err := mydb.Ping()
 	if err == nil {
 		mydb.bodbconnection = true
 	}
@@ -55,7 +54,7 @@ func newMysql() *MysqlDB {
 
 //HaveConnect 判断是否已经连接
 func (mydb *MysqlDB) HaveConnect() bool {
-	if mydb.db != nil && mydb.bodbconnection {
+	if mydb.DB != nil && mydb.bodbconnection {
 		return true
 	}
 	return false
@@ -66,7 +65,7 @@ func (mydb *MysqlDB) Create(dbname string) error {
 
 	statement := "CREATE TABLE IF NOT EXISTS `" + dbname + "` (`key` varchar(48) NOT NULL,`value` longtext,PRIMARY KEY (`key`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
 
-	_, err := mydb.db.Exec(statement)
+	_, err := mydb.Exec(statement)
 
 	return err
 }
@@ -74,7 +73,7 @@ func (mydb *MysqlDB) Create(dbname string) error {
 //SavetoRedis mysql转存数据到redis
 func (mydb *MysqlDB) SavetoRedis(redisConnect *RedisPool, tablename string) {
 	sQuery := "SELECT * FROM " + tablename
-	rows, err := mydb.db.Query(sQuery)
+	rows, err := mydb.Query(sQuery)
 
 	if err == nil {
 		defer rows.Close()
