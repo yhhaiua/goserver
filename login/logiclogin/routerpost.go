@@ -30,14 +30,12 @@ type stAccountMessage struct {
 	Name    string
 	Time    string
 	Sign    string
-	IP      string
-	Port    string
 }
 
 const (
 	routerRetSucc    = 0 //成功
 	routerRetFail    = 1 //数据读取失败
-	routerRetNoPname = 2 //没有对于平台版本
+	routerRetNoPname = 2 //没有对应平台版本
 	routerRetVersion = 3 //版本错误更新新版本有URL内容
 	routerRetNoJSON  = 4 //服务端解析失败
 	routerMd5Error   = 5 //MD5错误
@@ -104,7 +102,10 @@ func (myrouter *stRouterPost) getPlatformZone(w http.ResponseWriter, r *http.Req
 			if err == nil {
 				var RedisData stZoneMessage
 				for i := 0; i < len(panmedata); i++ {
-					RedisData.ZoneData[i], _ = Instance().redisdb().Get(panmedata[i])
+					value, err := Instance().redisdb().Get(panmedata[i])
+					if err == nil {
+						RedisData.ZoneData = append(RedisData.ZoneData, value)
+					}
 				}
 				Message, err := json.Marshal(RedisData)
 				if err == nil {
@@ -163,6 +164,9 @@ func (myrouter *stRouterPost) regAccount(w http.ResponseWriter, r *http.Request,
 								RedisData.Zoneid = serverid
 								RedisMessage, err := json.Marshal(RedisData)
 								if err == nil {
+
+									glog.Infof("保存玩家数据%s,%s", TempDataName, RedisMessage)
+
 									err = Instance().redisdb().Set(TempDataName, RedisMessage)
 									if err == nil {
 										err = Instance().redisdb().Zadd(writetablename, TempDataName)
@@ -225,7 +229,6 @@ func (myrouter *stRouterPost) regAccount(w http.ResponseWriter, r *http.Request,
 func (MessageCode *stRetMessage) getMessage(r *http.Request) {
 	pname := r.FormValue("pname")
 	version := r.FormValue("version")
-
 	MessageCode.Code = routerRetSucc
 
 	if Instance().redisdb() != nil {

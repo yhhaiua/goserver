@@ -96,7 +96,7 @@ func (mydb *MysqlDB) mysqltoredis(redisConnect *RedisPool, tablename string) {
 				if redisConnect != nil {
 					redisKey := tablename + "_" + Key
 					redisConnect.Set(redisKey, Value)
-					glog.Infof("redis添数据 %s, %s", redisKey, Value)
+					glog.Infof("redis添加数据 %s, %s", redisKey, Value)
 				}
 			}
 		}

@@ -63,6 +63,7 @@ func (mydata *stMysqlWrite) dateUpdateMysql(table string, mytime string) {
 
 	err = Instance().mysqldb().Update(skey, svalue, stable)
 	if err == nil {
+		glog.Infof("Update数据成功 %s,%s,%s", skey, svalue, stable)
 		snewtime, err := Instance().redisdb().Zscore(writetablename, table)
 		if err == nil {
 			if snewtime == mytime {

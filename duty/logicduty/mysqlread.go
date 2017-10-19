@@ -83,6 +83,8 @@ func (mydata *stMysqlRead) onceRead() {
 		mydata.onlyidDataRead()
 		//玩家帐号数据
 		mydata.accountDataRead()
+
+		glog.Info("onceRead 读取数据完成")
 	}
 
 }
