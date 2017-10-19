@@ -72,6 +72,12 @@ func (rc *RedisPool) Get(key string) (string, error) {
 	return redis.String(rc.do("GET", key))
 }
 
+// Keys redis获取符合条件的key.
+func (rc *RedisPool) Keys(key string) ([]string, error) {
+	keys := key + "*"
+	return redis.Strings(rc.do("KEYS", keys))
+}
+
 // GetInt64 redis获取value int64.
 func (rc *RedisPool) GetInt64(key string) (int64, error) {
 

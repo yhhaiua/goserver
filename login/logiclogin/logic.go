@@ -17,6 +17,7 @@ const SERVERTYPE = 1000
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
 	redisConnect  *common.RedisPool
+	routerConnect stRouterPost
 }
 
 var (
@@ -70,12 +71,10 @@ func (logic *Logicsvr) routerInit() {
 
 	router := grouter.New()
 
-	//Get the game version
-	//router.POST("/public/versionUpdate", versionUpdate)
 	//Get service information
-	//router.POST("/public/getPlatformZone", getPlatformZone)
+	router.POST("/public/getPlatformZone", logic.routerConnect.getPlatformZone)
 	//Get account information
-	//router.POST("/public/regAccount", regAccount)
+	router.POST("/public/regAccount", logic.routerConnect.regAccount)
 
 	glog.Infof("http监听开启%s", logic.mstJSONConfig.sport)
 	err := http.ListenAndServe(logic.mstJSONConfig.sport, router)
