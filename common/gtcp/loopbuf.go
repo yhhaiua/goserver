@@ -1,0 +1,110 @@
+package gtcp
+
+type loopBuf struct {
+	buf         []byte //包内容
+	bufsize     int    //buff的最大长度
+	canwritelen int    //能够写入的长度
+	writeadd    int    //写地址
+	canreadlen  int    //能够读取的长度
+	readadd     int    //读地址
+	freedatalen int    //空闲数据长度
+
+}
+
+//新建一个buff缓存
+func (loop *loopBuf) newLoopBuf(nmaxlen int) {
+	loop.buf = make([]byte, nmaxlen)
+	loop.bufsize = nmaxlen
+}
+
+//向buff中压人数据
+func (loop *loopBuf) putData(data []byte, len int) {
+
+	if len <= 0 {
+		return
+	}
+	if loop.canwritelen < len {
+
+		if loop.canwritelen+loop.freedatalen > 2*len {
+			//自己内存挪动
+			loop.moveData()
+		} else {
+			//开辟更大的内存
+			loop.distributionData(len)
+		}
+	}
+	loop.putRightData(data, len)
+}
+
+//压人数据
+func (loop *loopBuf) putRightData(data []byte, len int) {
+
+	copy(loop.buf[loop.writeadd:], data[:len])
+	loop.writeadd += len
+	loop.canwritelen -= len
+	loop.canreadlen += len
+}
+
+//自身数据腾挪
+func (loop *loopBuf) moveData() {
+
+	copy(loop.buf[:], loop.buf[loop.readadd:loop.readadd+loop.canreadlen])
+	loop.readadd = 0
+	loop.writeadd = loop.canreadlen
+	loop.freedatalen = 0
+	loop.canwritelen = loop.bufsize - loop.canreadlen
+}
+
+func alignment(value, num int) int {
+	newlen := value
+	surplus := value % num
+	if surplus > 0 {
+		newlen += num - surplus
+	}
+	return newlen
+}
+
+//重新开辟更大空间
+func (loop *loopBuf) distributionData(len int) {
+	newlen := alignment(loop.bufsize+len+loop.bufsize, 1024)
+
+	temp := loop.buf[loop.readadd : loop.readadd+loop.canreadlen]
+
+	loop.buf = make([]byte, newlen)
+	copy(loop.buf, temp)
+
+	loop.bufsize = newlen
+	loop.canwritelen = loop.bufsize - loop.canreadlen
+	loop.freedatalen = 0
+	loop.readadd = 0
+	loop.writeadd = loop.canreadlen
+}
+
+//向buff中释放数据
+func (loop *loopBuf) setReadPtr(nlen int) {
+	if nlen <= 0 || loop.canreadlen <= 0 {
+		return
+	}
+	if loop.canreadlen <= nlen {
+		//正好读完数据
+		loop.readadd = 0
+		loop.writeadd = 0
+		loop.canreadlen = 0
+		loop.canwritelen = loop.bufsize
+		loop.freedatalen = 0
+		return
+	}
+	loop.readadd += nlen
+	loop.freedatalen += nlen
+	loop.canreadlen -= nlen
+}
+
+//读取数据地址
+func (loop *loopBuf) getreadadd() int {
+	return loop.readadd
+}
+
+//读取数据末尾地址
+func (loop *loopBuf) getreadlenadd() int {
+	return loop.readadd + loop.canreadlen
+}
