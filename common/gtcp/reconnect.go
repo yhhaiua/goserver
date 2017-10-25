@@ -46,8 +46,10 @@ func (m *TCPConnMap) TimeAction() {
 				glog.Errorf("timeAction重新连接失败4秒后再次连接 error:%s", err)
 				continue
 			} else {
-				value.boConnected = true
+				value.doInit()
+				value.SendOnce()
 				go value.runRead()
+				go value.runWrite()
 			}
 		}
 	}

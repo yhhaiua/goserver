@@ -14,6 +14,14 @@ type BaseCmd struct {
 	SupCmd uint8
 }
 
+// Packet 一个包结构
+type Packet struct {
+	Size    uint32
+	Encrypt uint8
+	keep    uint8
+	data    interface{}
+}
+
 //Value 获取BasCmd的value值
 func (data *BaseCmd) Value() uint16 {
 	value := uint16(data.SupCmd) << 8

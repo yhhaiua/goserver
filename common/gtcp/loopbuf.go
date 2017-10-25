@@ -1,24 +1,38 @@
 package gtcp
 
-type loopBuf struct {
-	buf         []byte //包内容
-	bufsize     int    //buff的最大长度
-	canwritelen int    //能够写入的长度
-	writeadd    int    //写地址
-	canreadlen  int    //能够读取的长度
-	readadd     int    //读地址
-	freedatalen int    //空闲数据长度
+import (
+	"sync"
 
+	"github.com/yhhaiua/goserver/common"
+)
+
+type loopBuf struct {
+	buf         []byte     //包内容
+	bufsize     int        //buff的最大长度
+	canwritelen int        //能够写入的长度
+	writeadd    int        //写地址
+	canreadlen  int        //能够读取的长度
+	readadd     int        //读地址
+	freedatalen int        //空闲数据长度
+	Sendlock    sync.Mutex //发送锁
 }
 
 //新建一个buff缓存
 func (loop *loopBuf) newLoopBuf(nmaxlen int) {
+	loop.Sendlock.Lock()
+	defer loop.Sendlock.Unlock()
+
 	loop.buf = make([]byte, nmaxlen)
 	loop.bufsize = nmaxlen
+	loop.readadd = 0
+	loop.writeadd = 0
+	loop.canreadlen = 0
+	loop.canwritelen = loop.bufsize
+	loop.freedatalen = 0
 }
 
 //向buff中压人数据
-func (loop *loopBuf) putData(data []byte, len int) {
+func (loop *loopBuf) putData(data []byte, len int, datelen int) {
 
 	if len <= 0 {
 		return
@@ -33,13 +47,13 @@ func (loop *loopBuf) putData(data []byte, len int) {
 			loop.distributionData(len)
 		}
 	}
-	loop.putRightData(data, len)
+	loop.putRightData(data, len, datelen)
 }
 
 //压人数据
-func (loop *loopBuf) putRightData(data []byte, len int) {
+func (loop *loopBuf) putRightData(data []byte, len int, datelen int) {
 
-	copy(loop.buf[loop.writeadd:], data[:len])
+	copy(loop.buf[loop.writeadd:], data[:datelen])
 	loop.writeadd += len
 	loop.canwritelen -= len
 	loop.canreadlen += len
@@ -55,18 +69,9 @@ func (loop *loopBuf) moveData() {
 	loop.canwritelen = loop.bufsize - loop.canreadlen
 }
 
-func alignment(value, num int) int {
-	newlen := value
-	surplus := value % num
-	if surplus > 0 {
-		newlen += num - surplus
-	}
-	return newlen
-}
-
 //重新开辟更大空间
 func (loop *loopBuf) distributionData(len int) {
-	newlen := alignment(loop.bufsize+len+loop.bufsize, 1024)
+	newlen := common.Alignment(loop.bufsize+len+loop.bufsize, 1024)
 
 	temp := loop.buf[loop.readadd : loop.readadd+loop.canreadlen]
 
@@ -107,4 +112,11 @@ func (loop *loopBuf) getreadadd() int {
 //读取数据末尾地址
 func (loop *loopBuf) getreadlenadd() int {
 	return loop.readadd + loop.canreadlen
+}
+
+func (loop *loopBuf) addSendBuf(data []byte, len int) {
+	loop.Sendlock.Lock()
+	defer loop.Sendlock.Unlock()
+
+	loop.putData(data, common.Alignment(len, 8), len)
 }
