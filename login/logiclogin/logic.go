@@ -11,7 +11,7 @@ import (
 )
 
 //SERVERTYPE 服务器类型
-const SERVERTYPE = 1000
+const SERVERTYPE = common.SERVERTYPELOGIN
 
 //Logicsvr 服务器数据
 type Logicsvr struct {

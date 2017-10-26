@@ -60,4 +60,5 @@ func (m *TCPConnMap) newTCPConnMap() {
 
 func init() {
 	mTCPConnMap.newTCPConnMap()
+	go mTCPConnMap.Run()
 }

@@ -18,9 +18,10 @@ type ClientConnecter struct {
 	boConnected bool
 	conn        *net.TCPConn
 	mrecvMybuf  loopBuf
-	sendMybuf   loopBuf
-	MsgQueue    func(pcmd *BaseCmd, data []byte)
-	SendOnce    func()
+
+	sendMybuf loopBuf
+	MsgQueue  func(pcmd *common.BaseCmd, data []byte)
+	SendOnce  func()
 }
 
 const (
@@ -47,7 +48,7 @@ func AddConnect(serverip, port string, serverid int32) *ClientConnecter {
 }
 
 //SetFunc 发送验证包的函数、读取数据包的函数
-func (connect *ClientConnecter) SetFunc(Queue func(pcmd *BaseCmd, data []byte), Once func()) {
+func (connect *ClientConnecter) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte), Once func()) {
 	connect.MsgQueue = Queue
 	connect.SendOnce = Once
 }
@@ -80,6 +81,7 @@ func (connect *ClientConnecter) doClose() {
 }
 
 func (connect *ClientConnecter) doInit() {
+	glog.Infof("Connect 连接成功 %d", connect.nServerID)
 	connect.mrecvMybuf.newLoopBuf(2048)
 	connect.sendMybuf.newLoopBuf(2048)
 	connect.boConnected = true
@@ -93,18 +95,21 @@ func (connect *ClientConnecter) doRead() bool {
 			tembuf := connect.mrecvMybuf.buf[connect.mrecvMybuf.getreadadd():connect.mrecvMybuf.getreadlenadd()]
 
 			bytesBuffer := bytes.NewBuffer(tembuf[:8])
-			var packet PacketBase
+			var packet common.Packet
 			binary.Read(bytesBuffer, binary.BigEndian, &packet)
 			if packet.Size >= 1024*64 || packet.Size < 2 {
 				glog.Errorf("收到恶意攻击包 %d,%d", connect.nServerID, packet.Size)
 				return false
 			}
+			var pcmd common.BaseCmd
+			binary.Read(bytesBuffer, binary.BigEndian, &pcmd)
+
 			newlen := common.Alignment(int(packet.Size+6), 8)
 
 			if connect.mrecvMybuf.canreadlen >= newlen {
 
 				//包处理
-				connect.MsgQueue(&packet.Pcmd, tembuf[6:packet.Size+6])
+				connect.MsgQueue(&pcmd, tembuf[6:packet.Size+6])
 
 				connect.mrecvMybuf.setReadPtr(newlen)
 			} else {
@@ -121,14 +126,21 @@ func (connect *ClientConnecter) doRead() bool {
 //SendCmd 发送数据包
 func (connect *ClientConnecter) SendCmd(data interface{}) {
 
-	if connect.boConnected && connect.bovalid {
+	if connect.boConnected {
 
-		var packet Packet
-		packet.Size = uint32(binary.Size(data))
-		packet.data = data
 		bytesBuffer := new(bytes.Buffer)
-		binary.Write(bytesBuffer, binary.LittleEndian, &packet)
-
+		var packet common.Packet
+		packet.Size = uint32(binary.Size(data))
+		err := binary.Write(bytesBuffer, binary.LittleEndian, packet)
+		if err != nil {
+			glog.Errorf("pack err:%s", err)
+			return
+		}
+		err = binary.Write(bytesBuffer, binary.LittleEndian, data)
+		if err != nil {
+			glog.Errorf("data err:%s", err)
+			return
+		}
 		connect.sendMybuf.addSendBuf(bytesBuffer.Bytes(), bytesBuffer.Len())
 
 		if connect.sendMybuf.canreadlen >= maxforcedbufLen {

@@ -1,4 +1,4 @@
-package gtcp
+package common
 
 // PacketBase 基础包结构
 type PacketBase struct {
@@ -19,7 +19,6 @@ type Packet struct {
 	Size    uint32
 	Encrypt uint8
 	keep    uint8
-	data    interface{}
 }
 
 //Value 获取BasCmd的value值
