@@ -1,6 +1,6 @@
 # goserver
 golang 游戏框架
 # 使用库
-[1]: https://github.com/garyburd/redigo
-[2]: https://github.com/go-sql-driver/mysql
-[3]: https://github.com/davyxu/goobjfmt
+https://github.com/garyburd/redi<br>
+https://github.com/go-sql-driver/mysql<br>
+https://github.com/davyxu/goobjfmt<br>
