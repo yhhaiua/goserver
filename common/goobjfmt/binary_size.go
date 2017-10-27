@@ -24,6 +24,8 @@ func dataSize(v reflect.Value, sf *reflect.StructField) int {
 		reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Float32, reflect.Float64:
 		return int(v.Type().Size())
+	case reflect.Interface:
+		return dataSize(v.Elem(), nil)
 	case reflect.Struct:
 		sum := 0
 
@@ -45,10 +47,9 @@ func dataSize(v reflect.Value, sf *reflect.StructField) int {
 
 	case reflect.Int:
 		panic("do not support int, use int32/int64 instead")
-		//case reflect.Ptr:
-		//	ev := v.Elem()
-		//
-		//	return dataSize(ev, sf)
+	case reflect.Ptr:
+		ev := v.Elem()
+		return dataSize(ev, sf)
 		//case reflect.Invalid:
 		//	return 0
 		//case reflect.Interface:

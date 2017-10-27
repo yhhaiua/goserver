@@ -24,7 +24,7 @@ func BinaryRead(data []byte, obj interface{}) error {
 		return errInvalidType
 	}
 
-	if len(data) < size {
+	if len(data) != size {
 		return errOutOfData
 	}
 

@@ -199,7 +199,8 @@ func (der *encoder) value(v reflect.Value) {
 		for i := 0; i < l; i++ {
 			der.value(v.Index(i))
 		}
-
+	case reflect.Interface:
+		der.value(v.Elem())
 	case reflect.Struct:
 		t := v.Type()
 		l := v.NumField()
@@ -269,8 +270,8 @@ func (der *encoder) value(v reflect.Value) {
 		case reflect.Float64:
 			der.uint64(math.Float64bits(v.Float()))
 		}
-	//case reflect.Ptr:
-	//	der.value(v.Elem())
+	case reflect.Ptr:
+		der.value(v.Elem())
 	//case reflect.Invalid:
 
 	default:

@@ -2,6 +2,11 @@ package protocol
 
 import "github.com/yhhaiua/goserver/common"
 
+const (
+	//CHECKDATACODE 服务器间数据检测
+	CHECKDATACODE = 0x55884433
+)
+
 //ServerCmdLogin 服务器间登录包
 type ServerCmdLogin struct {
 	common.BaseCmd
@@ -13,7 +18,12 @@ type ServerCmdLogin struct {
 
 //Init ServerCmdLogin初始化
 func (pcmd *ServerCmdLogin) Init() {
-	pcmd.CheckData = 0x55884433
+	pcmd.CheckData = CHECKDATACODE
 	pcmd.Cmd = 254
 	pcmd.SupCmd = 1
+}
+
+//ServerCmdLoginValue ServerCmdLogin的Value值
+func ServerCmdLoginValue() uint16 {
+	return common.GetValue(254, 1)
 }

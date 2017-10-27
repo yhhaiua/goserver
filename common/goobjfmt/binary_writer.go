@@ -8,7 +8,7 @@ import (
 
 var (
 	errInvalidType = errors.New("invalid type")
-	errOutOfData   = errors.New("out of data")
+	errOutOfData   = errors.New("length inconsistent")
 )
 
 //BinaryWrite 写入data

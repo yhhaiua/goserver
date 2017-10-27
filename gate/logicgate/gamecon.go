@@ -4,6 +4,7 @@ package logicgate
 
 import (
 	"github.com/yhhaiua/goserver/common"
+	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gtcp"
 	"github.com/yhhaiua/goserver/protocol"
 )
@@ -17,13 +18,20 @@ func (con *stGameCon) create() bool {
 
 	if con.ClientConnecter != nil {
 		con.SetFunc(con.putMsgQueue, con.sendOnceCmd)
+		glog.Infof("尝试连接ip:[%s],prot:[%s],serverid:[%d]", "172.16.3.141", Instance().config().sport, Instance().serverid)
+		con.Start()
 		return true
 	}
 	return false
 }
 
-func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) {
-
+func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
+	switch pcmd.Value() {
+	case protocol.ServerCmdLoginValue():
+		return con.loginCmd(data)
+	default:
+	}
+	return true
 }
 
 func (con *stGameCon) sendOnceCmd() {
@@ -32,5 +40,20 @@ func (con *stGameCon) sendOnceCmd() {
 	retcmd.Svrid = Instance().serverid
 	retcmd.Svrtype = SERVERTYPE
 
-	con.SendCmd(retcmd)
+	con.SendCmd(&retcmd)
+}
+
+func (con *stGameCon) loginCmd(data []byte) bool {
+	var retcmd protocol.ServerCmdLogin
+	err := con.Cmdcodec.Decode(data, &retcmd)
+	if err != nil {
+		glog.Errorf("loginCmd解析包错误 %s", err)
+		return false
+	}
+	if retcmd.CheckData == protocol.CHECKDATACODE {
+		con.SetValid(true)
+		glog.Infof("game服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
+		return true
+	}
+	return false
 }

@@ -1,11 +1,8 @@
 package gtcp
 
 import (
-	"net"
 	"sync"
 	"time"
-
-	"github.com/yhhaiua/goserver/common/glog"
 )
 
 var mTCPConnMap TCPConnMap
@@ -39,19 +36,7 @@ func (m *TCPConnMap) TimeAction() {
 	m.Lock()
 	defer m.Unlock()
 	for _, value := range m.mymap {
-		if !value.boConnected {
-			var err error
-			value.conn, err = net.DialTCP("tcp", nil, value.myTCPAddr)
-			if err != nil {
-				glog.Errorf("timeAction重新连接失败4秒后再次连接 error:%s", err)
-				continue
-			} else {
-				value.doInit()
-				value.SendOnce()
-				go value.runRead()
-				go value.runWrite()
-			}
-		}
+		value.startconnect()
 	}
 }
 func (m *TCPConnMap) newTCPConnMap() {
