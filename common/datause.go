@@ -1,5 +1,7 @@
 package common
 
+import "github.com/yhhaiua/goserver/common/glog"
+
 //Max 比较大小
 func Max(a, b int) int {
 	if a < b {
@@ -24,4 +26,14 @@ func Alignment(value, num int) int {
 		newlen += num - surplus
 	}
 	return newlen
+}
+
+//CheckError 检测错误打印
+func CheckError(err error, info string) bool {
+
+	if err != nil {
+		glog.Errorf("%s出现错误err:%s", info, err)
+		return false
+	}
+	return true
 }

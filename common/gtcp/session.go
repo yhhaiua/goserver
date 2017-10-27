@@ -8,75 +8,42 @@ import (
 	"github.com/yhhaiua/goserver/common/glog"
 )
 
-//ClientConnecter 请求连接结构
-type ClientConnecter struct {
-	myTCPAddr   *net.TCPAddr
-	nServerID   int32
+//ServerSession 请求连接结构
+type ServerSession struct {
+	backtype    int32
 	bovalid     bool
 	boConnected bool
 	conn        *net.TCPConn
 	mrecvMybuf  loopBuf
-
-	sendMybuf loopBuf
-	MsgQueue  func(pcmd *common.BaseCmd, data []byte) bool
-	SendOnce  func()
+	sendMybuf   loopBuf
+	MsgQueue    func(pcmd *common.BaseCmd, data []byte) bool
 
 	Cmdcodec common.CmdCodec
 }
 
-const (
-	maxSendbufLen   = 1024 * 4        //一次发送长度
-	maxforcedbufLen = 1024 * 1024 * 5 //强制发送长度
-)
-
-//AddConnect 添加请求信息
-func AddConnect(serverip, port string, serverid int32) *ClientConnecter {
-	Connecter := new(ClientConnecter)
-	connectadd := serverip + ":" + port
-	Connecter.nServerID = serverid
-	var err error
-	Connecter.myTCPAddr, err = net.ResolveTCPAddr("tcp", connectadd)
-	if err != nil {
-		glog.Errorf("AddConnect error:%s", err)
-		Connecter = nil
-		return nil
-	}
+//AddSession 添加请求信息
+func AddSession(conn *net.TCPConn, backtype int32) *ServerSession {
+	Session := new(ServerSession)
+	Session.conn = conn
+	Session.backtype = backtype
 	//包解析
-	Connecter.Cmdcodec = new(common.BinaryCodec)
-	glog.Infof("尝试连接ip:[%s],prot:[%s],serverid:[%d]", serverip, port, serverid)
-	return Connecter
-}
+	Session.Cmdcodec = new(common.BinaryCodec)
 
-//Start 开始连接
-func (connect *ClientConnecter) Start() {
-	//尝试第一次连接
-	connect.startconnect()
-	//压人请求连接队列
-	mTCPConnMap.Put(connect)
-}
-func (connect *ClientConnecter) startconnect() bool {
-	if !connect.boConnected {
-		var err error
-		connect.conn, err = net.DialTCP("tcp", nil, connect.myTCPAddr)
-		if err != nil {
-			glog.Errorf("startconnect连接失败4秒后再次连接 error:%s", err)
-		} else {
-			connect.doInit()
-			connect.SendOnce()
-			go connect.runRead()
-			go connect.runWrite()
-			return true
-		}
-	}
-	return false
+	return Session
 }
 
 //SetFunc 发送验证包的函数、读取数据包的函数
-func (connect *ClientConnecter) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte) bool, Once func()) {
+func (connect *ServerSession) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte) bool) {
 	connect.MsgQueue = Queue
-	connect.SendOnce = Once
 }
-func (connect *ClientConnecter) runRead() {
+
+//Start 开始连接
+func (connect *ServerSession) Start() {
+	connect.doInit()
+	go connect.runRead()
+	go connect.runWrite()
+}
+func (connect *ServerSession) runRead() {
 	tempbuf := make([]byte, 65536)
 
 	for {
@@ -84,7 +51,7 @@ func (connect *ClientConnecter) runRead() {
 			len, err := connect.conn.Read(tempbuf)
 			if err != nil {
 				connect.doClose()
-				glog.Errorf("socket连接断开 %d,%s", connect.nServerID, err)
+				glog.Errorf("socket连接断开 %d,%s", connect.backtype, err)
 				return
 			}
 			connect.mrecvMybuf.putData(tempbuf, len, len)
@@ -97,7 +64,7 @@ func (connect *ClientConnecter) runRead() {
 	}
 
 }
-func (connect *ClientConnecter) doClose() {
+func (connect *ServerSession) doClose() {
 	connect.conn.Close()
 	connect.bovalid = false
 	connect.boConnected = false
@@ -105,17 +72,17 @@ func (connect *ClientConnecter) doClose() {
 }
 
 //SetValid 设置是否为激活状态
-func (connect *ClientConnecter) SetValid(bodata bool) {
+func (connect *ServerSession) SetValid(bodata bool) {
 	connect.bovalid = bodata
 }
-func (connect *ClientConnecter) doInit() {
-	glog.Infof("Connect 连接成功 %d", connect.nServerID)
+func (connect *ServerSession) doInit() {
+	glog.Infof("ServerSession 连接成功 %d", connect.backtype)
 	connect.mrecvMybuf.newLoopBuf(2048)
 	connect.sendMybuf.newLoopBuf(2048)
 	connect.boConnected = true
 }
 
-func (connect *ClientConnecter) doRead() bool {
+func (connect *ServerSession) doRead() bool {
 
 	for {
 		if connect.boConnected && connect.mrecvMybuf.canreadlen >= 8 {
@@ -130,7 +97,7 @@ func (connect *ClientConnecter) doRead() bool {
 				return false
 			}
 			if packet.Size >= 1024*64 || packet.Size < 2 {
-				glog.Errorf("收到恶意攻击包 %d,%d", connect.nServerID, packet.Size)
+				glog.Errorf("收到恶意攻击包 %d,%d", connect.backtype, packet.Size)
 				return false
 			}
 
@@ -157,7 +124,7 @@ func (connect *ClientConnecter) doRead() bool {
 }
 
 //SendCmd 发送数据包
-func (connect *ClientConnecter) SendCmd(data interface{}) {
+func (connect *ServerSession) SendCmd(data interface{}) {
 
 	if connect.boConnected {
 
@@ -179,7 +146,7 @@ func (connect *ClientConnecter) SendCmd(data interface{}) {
 
 }
 
-func (connect *ClientConnecter) startSend() {
+func (connect *ServerSession) startSend() {
 
 	connect.sendMybuf.Sendlock.Lock()
 	defer connect.sendMybuf.Sendlock.Unlock()
@@ -205,7 +172,7 @@ func (connect *ClientConnecter) startSend() {
 	}
 }
 
-func (connect *ClientConnecter) runWrite() {
+func (connect *ServerSession) runWrite() {
 
 	for {
 		if connect.boConnected && connect.conn != nil {

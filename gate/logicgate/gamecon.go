@@ -18,7 +18,6 @@ func (con *stGameCon) create() bool {
 
 	if con.ClientConnecter != nil {
 		con.SetFunc(con.putMsgQueue, con.sendOnceCmd)
-		glog.Infof("尝试连接ip:[%s],prot:[%s],serverid:[%d]", "172.16.3.141", Instance().config().sport, Instance().serverid)
 		con.Start()
 		return true
 	}
@@ -46,11 +45,8 @@ func (con *stGameCon) sendOnceCmd() {
 func (con *stGameCon) loginCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdLogin
 	err := con.Cmdcodec.Decode(data, &retcmd)
-	if err != nil {
-		glog.Errorf("loginCmd解析包错误 %s", err)
-		return false
-	}
-	if retcmd.CheckData == protocol.CHECKDATACODE {
+
+	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == protocol.CHECKDATACODE {
 		con.SetValid(true)
 		glog.Infof("game服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
 		return true

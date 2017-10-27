@@ -31,7 +31,7 @@ func main() {
 		logicgate.Instance().LogicInit(svrid)
 
 		for {
-			time.Sleep(time.Second * 50000)
+			time.Sleep(time.Second * 500000)
 		}
 	}
 	glog.Flush()
