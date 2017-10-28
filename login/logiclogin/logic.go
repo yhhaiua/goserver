@@ -8,10 +8,11 @@ import (
 	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/grouter"
+	"github.com/yhhaiua/goserver/comsvrsrc"
 )
 
 //SERVERTYPE 服务器类型
-const SERVERTYPE = common.SERVERTYPELOGIN
+const SERVERTYPE = comsvrsrc.SERVERTYPELOGIN
 
 //Logicsvr 服务器数据
 type Logicsvr struct {

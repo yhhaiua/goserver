@@ -1,4 +1,4 @@
-package common
+package comsvrsrc
 
 const (
 	//SERVERTYPELOGIN 登录服务器

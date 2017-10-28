@@ -1,5 +1,3 @@
-//读取配置文件
-
 package logicgate
 
 import (
@@ -13,6 +11,7 @@ type stGameCon struct {
 	*gtcp.ClientConnecter
 }
 
+//create 创建连接
 func (con *stGameCon) create() bool {
 	con.ClientConnecter = gtcp.AddConnect("172.16.3.141", Instance().config().sport, Instance().serverid)
 
@@ -24,6 +23,7 @@ func (con *stGameCon) create() bool {
 	return false
 }
 
+//putMsgQueue 消息队列
 func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
 	case protocol.ServerCmdLoginValue():
@@ -33,6 +33,7 @@ func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
 	return true
 }
 
+//sendOnceCmd 连接发送验证包
 func (con *stGameCon) sendOnceCmd() {
 	var retcmd protocol.ServerCmdLogin
 	retcmd.Init()
@@ -42,9 +43,11 @@ func (con *stGameCon) sendOnceCmd() {
 	con.SendCmd(&retcmd)
 }
 
+//loginCmd 收到验证返回包
 func (con *stGameCon) loginCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdLogin
-	err := con.Cmdcodec.Decode(data, &retcmd)
+
+	err := con.Cmdcodec().Decode(data, &retcmd)
 
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == protocol.CHECKDATACODE {
 		con.SetValid(true)

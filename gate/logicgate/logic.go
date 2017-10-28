@@ -4,12 +4,12 @@ import (
 	"net"
 	"sync"
 
-	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/gtcp"
+	"github.com/yhhaiua/goserver/comsvrsrc"
 )
 
 //SERVERTYPE 服务器类型
-const SERVERTYPE = common.SERVERTYPEGATE
+const SERVERTYPE = comsvrsrc.SERVERTYPEGATE
 const (
 	callbackPLAYER = 10000
 )
@@ -55,14 +55,14 @@ func (logic *Logicsvr) LogicInit(serverid int) bool {
 }
 
 func (logic *Logicsvr) allconnect() bool {
-
+	//连接gs队列
+	logic.gameconmap = make(map[int32]*stGameCon)
+	//连接gs
 	success := logic.gameConInit()
 
 	return success
 }
 func (logic *Logicsvr) gameConInit() bool {
-	logic.gameconmap = make(map[int32]*stGameCon)
-
 	con := new(stGameCon)
 	if con.create() {
 		logic.gameconmap[logic.serverid] = con
