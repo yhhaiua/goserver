@@ -9,16 +9,12 @@ var mTCPConnMap TCPConnMap
 
 //TCPConnMap 所有请求连接队列
 type TCPConnMap struct {
-	sync.Mutex
-	mymap map[int32]*ClientConnecter
+	mymap *sync.Map
 }
 
 //Put 向队列中压人新的请求
 func (m *TCPConnMap) Put(clent *ClientConnecter) {
-
-	m.Lock()
-	defer m.Unlock()
-	m.mymap[clent.nServerID] = clent
+	m.mymap.Store(clent.nServerID, clent)
 }
 
 //Run 循环队列请求连接
@@ -33,14 +29,19 @@ func (m *TCPConnMap) Run() {
 
 //TimeAction 激活连接
 func (m *TCPConnMap) TimeAction() {
-	m.Lock()
-	defer m.Unlock()
-	for _, value := range m.mymap {
-		value.startconnect()
+	m.mymap.Range(m.runCheck)
+}
+
+func (m *TCPConnMap) runCheck(key, value interface{}) bool {
+	connect, zok := value.(*ClientConnecter)
+	if zok {
+		connect.startconnect()
+		return true
 	}
+	return false
 }
 func (m *TCPConnMap) newTCPConnMap() {
-	m.mymap = make(map[int32]*ClientConnecter)
+	m.mymap = new(sync.Map)
 }
 
 func init() {

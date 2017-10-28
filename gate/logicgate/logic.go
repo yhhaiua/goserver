@@ -19,7 +19,7 @@ const (
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
 	gameconmap    map[int32]*stGameCon
-	playersessmap stPlayerSessMap
+	playerMap     *sync.Map
 	serverid      int32
 	linkKey       int64
 }
@@ -80,7 +80,7 @@ func (logic *Logicsvr) gameConInit() bool {
 //allListen所有的监听
 func (logic *Logicsvr) allListen() bool {
 
-	logic.playersessmap.sessMap = make(map[int64]*stPlayerSession)
+	logic.playerMap = new(sync.Map)
 
 	success := gtcp.AddListen("0.0.0.0", logic.config().sport, callbackPLAYER, logic.ListenCallback)
 
@@ -101,13 +101,27 @@ func (logic *Logicsvr) playerSessionInit(con *net.TCPConn) {
 	session := new(stPlayerSession)
 	key := atomic.AddInt64(&logic.linkKey, 1)
 	if session.create(con, key) {
-		logic.playersessmap.add(session, key)
+		logic.playerMap.Store(key, session)
 	}
 }
 func (logic *Logicsvr) config() *stJSONConfig {
 	return &logic.mstJSONConfig
 }
 
-func (logic *Logicsvr) playerMap() *stPlayerSessMap {
-	return &logic.playersessmap
+func (logic *Logicsvr) playerSyncMap() *sync.Map {
+	return logic.playerMap
+}
+
+//SendPlayerCmd 发送给玩家信息
+func (logic *Logicsvr) SendPlayerCmd(key int64, data interface{}) {
+
+	value, ok := logic.playerMap.Load(key)
+	if ok {
+
+		session, zok := value.(*stPlayerSession)
+		if zok {
+			session.SendCmd(data)
+		}
+	}
+
 }

@@ -2,7 +2,6 @@ package logicgate
 
 import (
 	"net"
-	"sync"
 
 	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
@@ -10,31 +9,6 @@ import (
 	"github.com/yhhaiua/goserver/protocol"
 )
 
-type stPlayerSessMap struct {
-	sync.Mutex
-	sessMap map[int64]*stPlayerSession
-}
-
-func (sess *stPlayerSessMap) add(newPlayer *stPlayerSession, key int64) {
-	sess.Lock()
-	defer sess.Unlock()
-	sess.sessMap[key] = newPlayer
-}
-func (sess *stPlayerSessMap) delete(key int64) {
-	sess.Lock()
-	defer sess.Unlock()
-	delete(sess.sessMap, key)
-}
-func (sess *stPlayerSessMap) SendCmd(key int64, data interface{}) {
-	sess.Lock()
-	defer sess.Unlock()
-	value, ok := sess.sessMap[key]
-	if ok {
-		value.SendCmd(data)
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 type stPlayerSession struct {
 	*gtcp.ServerSession
 }
@@ -64,7 +38,7 @@ func (session *stPlayerSession) putMsgQueue(pcmd *common.BaseCmd, data []byte) b
 //delCloseLink 断开连接回调
 func (session *stPlayerSession) delCloseLink(servertag int64) {
 
-	Instance().playerMap().delete(servertag)
+	Instance().playerSyncMap().Delete(servertag)
 
 }
 

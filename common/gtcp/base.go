@@ -130,7 +130,7 @@ func (connect *baseSession) doRead() bool {
 				if connect.msgQueue(&packet.Pcmd, tembuf[6:packet.Size+6]) {
 					connect.mrecvMybuf.setReadPtr(newlen)
 				} else {
-					break
+					return false
 				}
 
 			} else {
@@ -169,10 +169,11 @@ func (connect *baseSession) sendCmd(data interface{}) {
 
 func (connect *baseSession) startSend() {
 
-	connect.sendMybuf.Sendlock.Lock()
-	defer connect.sendMybuf.Sendlock.Unlock()
-
 	if connect.sendMybuf.canreadlen > 0 {
+
+		connect.sendMybuf.Sendlock.Lock()
+		defer connect.sendMybuf.Sendlock.Unlock()
+
 		for {
 			sendlen := common.Min(connect.sendMybuf.canreadlen, maxSendbufLen)
 
