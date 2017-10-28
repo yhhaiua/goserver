@@ -17,7 +17,7 @@ type ClientConnecter struct {
 }
 
 //AddConnect 添加请求信息
-func AddConnect(serverip, port string, serverid int32) *ClientConnecter {
+func AddConnect(serverip, port string, serverid int32, servername string) *ClientConnecter {
 	Connecter := new(ClientConnecter)
 	connectadd := serverip + ":" + port
 	Connecter.nServerID = serverid
@@ -28,6 +28,8 @@ func AddConnect(serverip, port string, serverid int32) *ClientConnecter {
 		Connecter = nil
 		return nil
 	}
+	Connecter.baseSession = addbase(nil, int64(serverid), servername)
+	Connecter.newcodec(newcodecBinary)
 	glog.Infof("尝试连接ip:[%s],prot:[%s],serverid:[%d]", serverip, port, serverid)
 	return Connecter
 }
@@ -41,12 +43,11 @@ func (connect *ClientConnecter) Start() {
 }
 func (connect *ClientConnecter) startconnect() bool {
 	if !connect.boConnected {
-		conn, err := net.DialTCP("tcp", nil, connect.myTCPAddr)
+		var err error
+		connect.conn, err = net.DialTCP("tcp", nil, connect.myTCPAddr)
 		if err != nil {
 			glog.Errorf("startconnect连接失败4秒后再次连接 error:%s", err)
 		} else {
-			connect.baseSession = addbase(conn, connect.nServerID)
-			connect.newcodec(newcodecBinary)
 			connect.start()
 			connect.sendOnce()
 			return true

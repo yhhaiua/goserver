@@ -16,9 +16,15 @@ type ServerCmdLogin struct {
 	Now       int32
 }
 
+//ServerCmdHeart 服务器间心跳包
+type ServerCmdHeart struct {
+	common.BaseCmd
+	isneedAck bool
+	checknum  int8
+}
+
 //Init ServerCmdLogin初始化
 func (pcmd *ServerCmdLogin) Init() {
-	pcmd.CheckData = CHECKDATACODE
 	pcmd.Cmd = 254
 	pcmd.SupCmd = 1
 }
@@ -26,4 +32,15 @@ func (pcmd *ServerCmdLogin) Init() {
 //ServerCmdLoginValue ServerCmdLogin的Value值
 func ServerCmdLoginValue() uint16 {
 	return common.GetValue(254, 1)
+}
+
+//Init ServerCmdHeart初始化
+func (pcmd *ServerCmdHeart) Init() {
+	pcmd.Cmd = 254
+	pcmd.SupCmd = 254
+}
+
+//ServerCmdHeartValue ServerCmdHeart的Value值
+func ServerCmdHeartValue() uint16 {
+	return common.GetValue(254, 254)
 }

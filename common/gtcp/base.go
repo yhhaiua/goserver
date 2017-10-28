@@ -17,9 +17,9 @@ const (
 	maxforcedbufLen = 1024 * 1024 * 5 //强制发送长度
 )
 
-//baseSession 连接结构
+//BaseSession 连接结构
 type baseSession struct {
-	servertag   int32
+	servertag   int64
 	bovalid     bool
 	boConnected bool
 	conn        *net.TCPConn
@@ -27,12 +27,14 @@ type baseSession struct {
 	sendMybuf   loopBuf
 	msgQueue    func(pcmd *common.BaseCmd, data []byte) bool
 	cmdcodec    common.CmdCodec
+	sname       string
 }
 
-func addbase(conn *net.TCPConn, servertag int32) *baseSession {
+func addbase(conn *net.TCPConn, servertag int64, sname string) *baseSession {
 	Session := new(baseSession)
 	Session.conn = conn
 	Session.servertag = servertag
+	Session.sname = sname
 	return Session
 }
 func (connect *baseSession) newcodec(codectype int) {
@@ -57,7 +59,7 @@ func (connect *baseSession) runRead() {
 			len, err := connect.conn.Read(tempbuf)
 			if err != nil {
 				connect.doClose()
-				glog.Errorf("socket连接断开 %d,%s", connect.servertag, err)
+				glog.Errorf("socket连接断开 %s,%d,%s", connect.sname, connect.servertag, err)
 				return
 			}
 			connect.mrecvMybuf.putData(tempbuf, len, len)
@@ -80,7 +82,7 @@ func (connect *baseSession) doClose() {
 }
 
 func (connect *baseSession) doInit() {
-	glog.Infof("ServerSession 连接成功 %d", connect.servertag)
+	glog.Infof("ServerSession 连接成功 %d,%s", connect.servertag, connect.sname)
 	connect.mrecvMybuf.newLoopBuf(2048)
 	connect.sendMybuf.newLoopBuf(2048)
 	connect.boConnected = true
@@ -97,11 +99,11 @@ func (connect *baseSession) doRead() bool {
 			err := connect.cmdcodec.Decode(tembuf[:8], &packet)
 
 			if err != nil {
-				glog.Errorf("收到恶意攻击包 %s", err)
+				glog.Errorf("收到恶意攻击包%s,%d,%s", connect.sname, connect.servertag, err)
 				return false
 			}
 			if packet.Size >= 1024*64 || packet.Size < 2 {
-				glog.Errorf("收到恶意攻击包 %d,%d", connect.servertag, packet.Size)
+				glog.Errorf("收到恶意攻击包 %s,%d,%d", connect.sname, connect.servertag, packet.Size)
 				return false
 			}
 
@@ -137,7 +139,7 @@ func (connect *baseSession) sendCmd(data interface{}) {
 		packet.Data = data
 		bytedata, err := connect.cmdcodec.Encode(&packet)
 		if err != nil {
-			glog.Errorf("data err:%s", err)
+			glog.Errorf("data err:%s,%d,%s", connect.sname, connect.servertag, err)
 			return
 		}
 		connect.sendMybuf.addSendBuf(bytedata, len(bytedata))
@@ -165,7 +167,7 @@ func (connect *baseSession) startSend() {
 				if err == nil {
 					connect.sendMybuf.setReadPtr(writelen)
 				} else {
-					glog.Errorf("写入错误%s", err)
+					glog.Errorf("写入错误%s,%d,%s", connect.sname, connect.servertag, err)
 					break
 				}
 			} else {

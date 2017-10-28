@@ -12,9 +12,9 @@ type ServerSession struct {
 }
 
 //AddSession 添加请求信息
-func AddSession(conn *net.TCPConn, backtype int32) *ServerSession {
+func AddSession(conn *net.TCPConn, backtype int64, sname string) *ServerSession {
 	Session := new(ServerSession)
-	Session.baseSession = addbase(conn, backtype)
+	Session.baseSession = addbase(conn, backtype, sname)
 	//包解析
 	Session.newcodec(newcodecBinary)
 

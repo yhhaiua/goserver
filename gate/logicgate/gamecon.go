@@ -13,7 +13,7 @@ type stGameCon struct {
 
 //create 创建连接
 func (con *stGameCon) create() bool {
-	con.ClientConnecter = gtcp.AddConnect("172.16.3.141", Instance().config().sport, Instance().serverid)
+	con.ClientConnecter = gtcp.AddConnect("172.16.3.141", Instance().config().sport, Instance().serverid, "game服务器")
 
 	if con.ClientConnecter != nil {
 		con.SetFunc(con.putMsgQueue, con.sendOnceCmd)
@@ -28,6 +28,7 @@ func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
 	case protocol.ServerCmdLoginValue():
 		return con.loginCmd(data)
+	case protocol.ServerCmdHeartValue():
 	default:
 	}
 	return true
@@ -37,6 +38,8 @@ func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
 func (con *stGameCon) sendOnceCmd() {
 	var retcmd protocol.ServerCmdLogin
 	retcmd.Init()
+
+	retcmd.CheckData = protocol.CHECKDATACODE
 	retcmd.Svrid = Instance().serverid
 	retcmd.Svrtype = SERVERTYPE
 

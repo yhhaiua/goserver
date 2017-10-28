@@ -3,6 +3,7 @@ package logicgate
 import (
 	"net"
 	"sync"
+	"sync/atomic"
 
 	"github.com/yhhaiua/goserver/common/gtcp"
 	"github.com/yhhaiua/goserver/comsvrsrc"
@@ -18,7 +19,9 @@ const (
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
 	gameconmap    map[int32]*stGameCon
+	playersessmap stPlayerSessMap
 	serverid      int32
+	linkKey       int64
 }
 
 var (
@@ -54,6 +57,7 @@ func (logic *Logicsvr) LogicInit(serverid int) bool {
 	return false
 }
 
+//allconnect所有的连接
 func (logic *Logicsvr) allconnect() bool {
 	//连接gs队列
 	logic.gameconmap = make(map[int32]*stGameCon)
@@ -62,6 +66,8 @@ func (logic *Logicsvr) allconnect() bool {
 
 	return success
 }
+
+//game连接
 func (logic *Logicsvr) gameConInit() bool {
 	con := new(stGameCon)
 	if con.create() {
@@ -70,7 +76,11 @@ func (logic *Logicsvr) gameConInit() bool {
 	}
 	return false
 }
+
+//allListen所有的监听
 func (logic *Logicsvr) allListen() bool {
+
+	logic.playersessmap.sessMap = make(map[int64]*stPlayerSession)
 
 	success := gtcp.AddListen("0.0.0.0", logic.config().sport, callbackPLAYER, logic.ListenCallback)
 
@@ -81,7 +91,17 @@ func (logic *Logicsvr) allListen() bool {
 func (logic *Logicsvr) ListenCallback(con *net.TCPConn, backtype int32) {
 	switch backtype {
 	case callbackPLAYER:
+		logic.playerSessionInit(con)
 	default:
+	}
+}
+
+//玩家连接调用
+func (logic *Logicsvr) playerSessionInit(con *net.TCPConn) {
+	session := new(stPlayerSession)
+	key := atomic.AddInt64(&logic.linkKey, 1)
+	if session.create(con, key) {
+		logic.playersessmap.add(session, key)
 	}
 }
 func (logic *Logicsvr) config() *stJSONConfig {
