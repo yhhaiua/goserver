@@ -4,7 +4,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/gate/logicgate"
@@ -30,9 +29,7 @@ func main() {
 
 		logicgate.Instance().LogicInit(svrid)
 
-		for {
-			time.Sleep(time.Second * 500000)
-		}
+		select {}
 	}
 	glog.Flush()
 }

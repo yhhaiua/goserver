@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/yhhaiua/goserver/common"
+	"github.com/yhhaiua/goserver/common/glog"
 )
 
 //ServerSession 请求连接结构
@@ -18,6 +19,7 @@ func AddSession(conn *net.TCPConn, backtype int64, sname string) *ServerSession 
 	//包解析
 	Session.newcodec(newcodecBinary)
 
+	glog.Warningf("有新的连接进入 %s,%d", sname, backtype)
 	return Session
 }
 
@@ -26,9 +28,10 @@ func (connect *ServerSession) Cmdcodec() common.CmdCodec {
 	return connect.cmdcodec
 }
 
-//SetFunc 发送验证包的函数、读取数据包的函数
-func (connect *ServerSession) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte) bool) {
+//SetFunc 发送验证包的函数、断开回调包
+func (connect *ServerSession) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte) bool, Del func(servertag int64)) {
 	connect.msgQueue = Queue
+	connect.delLink = Del
 }
 
 //Start 开始连接
@@ -45,4 +48,10 @@ func (connect *ServerSession) SetValid(bodata bool) {
 func (connect *ServerSession) SendCmd(data interface{}) {
 	connect.sendCmd(data)
 
+}
+
+//Close 关闭连接
+func (connect *ServerSession) Close() {
+	glog.Warningf("主动调用关闭 %s,%d", connect.sname, connect.servertag)
+	connect.close()
 }

@@ -44,7 +44,7 @@ func (session *stPlayerSession) create(con *net.TCPConn, linkKey int64) bool {
 	session.ServerSession = gtcp.AddSession(con, linkKey, "playersession")
 
 	if session.ServerSession != nil {
-		session.SetFunc(session.putMsgQueue)
+		session.SetFunc(session.putMsgQueue, session.delCloseLink)
 		session.Start()
 		return true
 	}
@@ -59,6 +59,13 @@ func (session *stPlayerSession) putMsgQueue(pcmd *common.BaseCmd, data []byte) b
 	default:
 	}
 	return true
+}
+
+//delCloseLink 断开连接回调
+func (session *stPlayerSession) delCloseLink(servertag int64) {
+
+	Instance().playerMap().delete(servertag)
+
 }
 
 //loginCmd 收到验证包

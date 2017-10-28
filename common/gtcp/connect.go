@@ -28,9 +28,11 @@ func AddConnect(serverip, port string, serverid int32, servername string) *Clien
 		Connecter = nil
 		return nil
 	}
+	//baseSession结构中的参数初始化
 	Connecter.baseSession = addbase(nil, int64(serverid), servername)
 	Connecter.newcodec(newcodecBinary)
-	glog.Infof("尝试连接ip:[%s],prot:[%s],serverid:[%d]", serverip, port, serverid)
+	Connecter.boRecon = true
+	glog.Warningf("尝试连接ip:[%s],prot:[%s],serverid:[%d]", serverip, port, serverid)
 	return Connecter
 }
 
@@ -42,7 +44,7 @@ func (connect *ClientConnecter) Start() {
 	mTCPConnMap.Put(connect)
 }
 func (connect *ClientConnecter) startconnect() bool {
-	if !connect.boConnected {
+	if connect.boRecon {
 		var err error
 		connect.conn, err = net.DialTCP("tcp", nil, connect.myTCPAddr)
 		if err != nil {
@@ -75,4 +77,10 @@ func (connect *ClientConnecter) SetValid(bodata bool) {
 //SendCmd 发送数据包
 func (connect *ClientConnecter) SendCmd(data interface{}) {
 	connect.sendCmd(data)
+}
+
+//Close 关闭连接
+func (connect *ClientConnecter) Close() {
+	glog.Warningf("主动调用关闭 %s,%d", connect.sname, connect.servertag)
+	connect.close()
 }

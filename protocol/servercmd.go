@@ -19,8 +19,8 @@ type ServerCmdLogin struct {
 //ServerCmdHeart 服务器间心跳包
 type ServerCmdHeart struct {
 	common.BaseCmd
-	isneedAck bool
-	checknum  int8
+	IsneedAck bool
+	Checknum  int8
 }
 
 //Init ServerCmdLogin初始化

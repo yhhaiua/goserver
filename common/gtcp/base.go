@@ -13,8 +13,9 @@ const (
 	newcodecBinary = 1
 )
 const (
-	maxSendbufLen   = 1024 * 4        //一次发送长度
-	maxforcedbufLen = 1024 * 1024 * 5 //强制发送长度
+	maxSendbufLen    = 1024 * 4        //一次发送长度
+	maxforcedbufLen  = 1024 * 1024 * 5 //强制发送长度
+	verificationtime = 30              //连接验证时间
 )
 
 //BaseSession 连接结构
@@ -22,12 +23,15 @@ type baseSession struct {
 	servertag   int64
 	bovalid     bool
 	boConnected bool
+	boRecon     bool
 	conn        *net.TCPConn
 	mrecvMybuf  loopBuf
 	sendMybuf   loopBuf
 	msgQueue    func(pcmd *common.BaseCmd, data []byte) bool
 	cmdcodec    common.CmdCodec
 	sname       string
+	starttime   int64
+	delLink     func(servertag int64)
 }
 
 func addbase(conn *net.TCPConn, servertag int64, sname string) *baseSession {
@@ -58,14 +62,14 @@ func (connect *baseSession) runRead() {
 		if connect.boConnected && connect.conn != nil {
 			len, err := connect.conn.Read(tempbuf)
 			if err != nil {
-				connect.doClose()
+				connect.close()
 				glog.Errorf("socket连接断开 %s,%d,%s", connect.sname, connect.servertag, err)
 				return
 			}
 			connect.mrecvMybuf.putData(tempbuf, len, len)
 			//处理包
 			if !connect.doRead() {
-				connect.doClose()
+				connect.close()
 				return
 			}
 		} else {
@@ -77,15 +81,26 @@ func (connect *baseSession) runRead() {
 func (connect *baseSession) doClose() {
 	connect.conn.Close()
 	connect.bovalid = false
-	connect.boConnected = false
-
+	connect.boRecon = true
+	glog.Warningf("连接关闭%s,%d", connect.sname, connect.servertag)
+	if connect.delLink != nil {
+		connect.delLink(connect.servertag)
+	}
 }
 
+func (connect *baseSession) close() {
+	connect.boConnected = false
+}
+func (connect *baseSession) isValid() bool {
+	return connect.bovalid
+}
 func (connect *baseSession) doInit() {
-	glog.Infof("ServerSession 连接成功 %d,%s", connect.servertag, connect.sname)
+	glog.Warningf("ServerSession 连接成功 %d,%s", connect.servertag, connect.sname)
 	connect.mrecvMybuf.newLoopBuf(2048)
 	connect.sendMybuf.newLoopBuf(2048)
 	connect.boConnected = true
+	connect.boRecon = false
+	connect.starttime = time.Now().Unix()
 }
 
 func (connect *baseSession) doRead() bool {
@@ -183,8 +198,17 @@ func (connect *baseSession) runWrite() {
 	for {
 		if connect.boConnected && connect.conn != nil {
 			connect.startSend()
+
+			if !connect.isValid() {
+				nowtime := time.Now().Unix()
+				if nowtime-connect.starttime > verificationtime {
+					glog.Errorf("%d秒连接验证超时%s,%d", verificationtime, connect.sname, connect.servertag)
+					connect.close()
+				}
+			}
 			time.Sleep(time.Millisecond * 1)
 		} else {
+			connect.doClose()
 			break
 		}
 	}

@@ -107,3 +107,7 @@ func (logic *Logicsvr) playerSessionInit(con *net.TCPConn) {
 func (logic *Logicsvr) config() *stJSONConfig {
 	return &logic.mstJSONConfig
 }
+
+func (logic *Logicsvr) playerMap() *stPlayerSessMap {
+	return &logic.playersessmap
+}
