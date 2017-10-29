@@ -2,6 +2,7 @@ package gtcp
 
 import (
 	"net"
+	"sync"
 	"time"
 
 	"github.com/yhhaiua/goserver/common"
@@ -13,9 +14,9 @@ const (
 	newcodecBinary = 1
 )
 const (
-	maxSendbufLen    = 1024 * 4        //一次发送长度
-	maxforcedbufLen  = 1024 * 1024 * 5 //强制发送长度
-	verificationtime = 30              //连接验证时间
+	maxSendbufLen    = 1024 * 4 //一次发送长度
+	initMybufLen     = 2048     //初始化buf长度
+	verificationtime = 30       //连接验证时间
 )
 
 //BaseSession 连接结构
@@ -32,6 +33,7 @@ type baseSession struct {
 	sname       string
 	starttime   int64
 	delLink     func(servertag int64)
+	endSync     sync.WaitGroup
 }
 
 func addbase(conn *net.TCPConn, servertag int64, sname string) *baseSession {
@@ -39,6 +41,7 @@ func addbase(conn *net.TCPConn, servertag int64, sname string) *baseSession {
 	Session.conn = conn
 	Session.servertag = servertag
 	Session.sname = sname
+	Session.sendMybuf.initSendBuf()
 	return Session
 }
 func (connect *baseSession) newcodec(codectype int) {
@@ -52,8 +55,16 @@ func (connect *baseSession) newcodec(codectype int) {
 //start 开始连接
 func (connect *baseSession) start() {
 	connect.doInit()
+	connect.endSync.Add(2)
+
+	go connect.waitClose()
+
 	go connect.runRead()
 	go connect.runWrite()
+}
+func (connect *baseSession) waitClose() {
+	connect.endSync.Wait()
+	connect.doClose()
 }
 func (connect *baseSession) runRead() {
 	tempbuf := make([]byte, 65536)
@@ -64,22 +75,22 @@ func (connect *baseSession) runRead() {
 			if err != nil {
 				connect.close()
 				glog.Errorf("socket连接断开 %s,%d,%s", connect.sname, connect.servertag, err)
-				return
+				break
 			}
 			connect.mrecvMybuf.putData(tempbuf, len, len)
 			//处理包
 			if !connect.doRead() {
 				connect.close()
-				return
+				break
 			}
 		} else {
 			break
 		}
 	}
+	connect.endSync.Done()
 
 }
 func (connect *baseSession) doClose() {
-	connect.conn.Close()
 	connect.bovalid = false
 	connect.boRecon = true
 	glog.Warningf("连接关闭%s,%d", connect.sname, connect.servertag)
@@ -90,14 +101,15 @@ func (connect *baseSession) doClose() {
 
 func (connect *baseSession) close() {
 	connect.boConnected = false
+	connect.sendMybuf.SendCond.Signal()
 }
 func (connect *baseSession) isValid() bool {
 	return connect.bovalid
 }
 func (connect *baseSession) doInit() {
 	glog.Warningf("ServerSession 连接成功 %d,%s", connect.servertag, connect.sname)
-	connect.mrecvMybuf.newLoopBuf(2048)
-	connect.sendMybuf.newLoopBuf(2048)
+	connect.mrecvMybuf.newLoopBuf(initMybufLen)
+	connect.sendMybuf.newLoopBuf(initMybufLen)
 	connect.boConnected = true
 	connect.boRecon = false
 	connect.starttime = time.Now().Unix()
@@ -158,40 +170,36 @@ func (connect *baseSession) sendCmd(data interface{}) {
 			return
 		}
 		connect.sendMybuf.addSendBuf(bytedata, len(bytedata))
-
-		if connect.sendMybuf.canreadlen >= maxforcedbufLen {
-			//强制发送一次
-			connect.startSend()
-		}
 	}
 
 }
 
 func (connect *baseSession) startSend() {
 
-	if connect.sendMybuf.canreadlen > 0 {
+	connect.sendMybuf.Sendlock.Lock()
+	if connect.sendMybuf.canreadlen == 0 {
+		connect.sendMybuf.SendCond.Wait()
+	}
+	connect.sendMybuf.Sendlock.Unlock()
 
-		connect.sendMybuf.Sendlock.Lock()
-		defer connect.sendMybuf.Sendlock.Unlock()
+	connect.sendMybuf.Sendlock.Lock()
+	for {
+		sendlen := common.Min(connect.sendMybuf.canreadlen, maxSendbufLen)
 
-		for {
-			sendlen := common.Min(connect.sendMybuf.canreadlen, maxSendbufLen)
-
-			if sendlen > 0 {
-				tembuf := connect.sendMybuf.buf[connect.sendMybuf.getreadadd() : connect.sendMybuf.getreadadd()+sendlen]
-				writelen, err := connect.conn.Write(tembuf)
-				if err == nil {
-					connect.sendMybuf.setReadPtr(writelen)
-				} else {
-					glog.Errorf("写入错误%s,%d,%s", connect.sname, connect.servertag, err)
-					break
-				}
+		if sendlen > 0 {
+			tembuf := connect.sendMybuf.buf[connect.sendMybuf.getreadadd() : connect.sendMybuf.getreadadd()+sendlen]
+			writelen, err := connect.conn.Write(tembuf)
+			if err == nil {
+				connect.sendMybuf.setReadPtr(writelen)
 			} else {
+				glog.Errorf("写入错误%s,%d,%s", connect.sname, connect.servertag, err)
 				break
 			}
+		} else {
+			break
 		}
-
 	}
+	connect.sendMybuf.Sendlock.Unlock()
 }
 
 func (connect *baseSession) runWrite() {
@@ -205,13 +213,15 @@ func (connect *baseSession) runWrite() {
 				if nowtime-connect.starttime > verificationtime {
 					glog.Errorf("%d秒连接验证超时%s,%d", verificationtime, connect.sname, connect.servertag)
 					connect.close()
+					break
 				}
 			}
-			time.Sleep(time.Millisecond * 1)
+			//time.Sleep(time.Millisecond * 1)
 		} else {
-			connect.doClose()
 			break
 		}
 	}
+	connect.conn.Close()
+	connect.endSync.Done()
 
 }

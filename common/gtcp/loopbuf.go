@@ -15,12 +15,11 @@ type loopBuf struct {
 	readadd     int        //读地址
 	freedatalen int        //空闲数据长度
 	Sendlock    sync.Mutex //发送锁
+	SendCond    *sync.Cond //发送信号
 }
 
 //新建一个buff缓存
 func (loop *loopBuf) newLoopBuf(nmaxlen int) {
-	loop.Sendlock.Lock()
-	defer loop.Sendlock.Unlock()
 
 	loop.buf = make([]byte, nmaxlen)
 	loop.bufsize = nmaxlen
@@ -114,9 +113,16 @@ func (loop *loopBuf) getreadlenadd() int {
 	return loop.readadd + loop.canreadlen
 }
 
+//添加发送数据
 func (loop *loopBuf) addSendBuf(data []byte, len int) {
 	loop.Sendlock.Lock()
-	defer loop.Sendlock.Unlock()
-
 	loop.putData(data, common.Alignment(len, 8), len)
+	loop.Sendlock.Unlock()
+
+	loop.SendCond.Signal()
+}
+
+//初始化发送
+func (loop *loopBuf) initSendBuf() {
+	loop.SendCond = sync.NewCond(&loop.Sendlock)
 }

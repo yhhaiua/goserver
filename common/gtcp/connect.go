@@ -11,9 +11,11 @@ import (
 //ClientConnecter 请求连接结构
 type ClientConnecter struct {
 	*baseSession
-	myTCPAddr *net.TCPAddr
-	nServerID int32
-	sendOnce  func()
+	myTCPAddr  *net.TCPAddr
+	nServerID  int32
+	sendOnce   func()
+	clientMsg  func(pcmd *common.BaseCmd, data []byte) bool
+	clientname string
 }
 
 //AddConnect 添加请求信息
@@ -21,6 +23,7 @@ func AddConnect(serverip, port string, serverid int32, servername string) *Clien
 	Connecter := new(ClientConnecter)
 	connectadd := serverip + ":" + port
 	Connecter.nServerID = serverid
+	Connecter.clientname = servername
 	var err error
 	Connecter.myTCPAddr, err = net.ResolveTCPAddr("tcp", connectadd)
 	if err != nil {
@@ -28,10 +31,7 @@ func AddConnect(serverip, port string, serverid int32, servername string) *Clien
 		Connecter = nil
 		return nil
 	}
-	//baseSession结构中的参数初始化
-	Connecter.baseSession = addbase(nil, int64(serverid), servername)
-	Connecter.newcodec(newcodecBinary)
-	Connecter.boRecon = true
+
 	glog.Warningf("尝试连接ip:[%s],prot:[%s],serverid:[%d]", serverip, port, serverid)
 	return Connecter
 }
@@ -50,12 +50,21 @@ func (connect *ClientConnecter) startconnect() bool {
 		if err != nil {
 			glog.Errorf("startconnect连接失败4秒后再次连接 error:%s", err)
 		} else {
+			connect.baseInit()
 			connect.start()
 			connect.sendOnce()
 			return true
 		}
 	}
 	return false
+}
+
+func (connect *ClientConnecter) baseInit() {
+	//baseSession结构中的参数初始化
+	connect.baseSession = addbase(nil, int64(connect.nServerID), connect.clientname)
+	connect.newcodec(newcodecBinary)
+	connect.boRecon = true
+	connect.msgQueue = connect.clientMsg
 }
 
 //Cmdcodec 包解析
@@ -65,7 +74,7 @@ func (connect *ClientConnecter) Cmdcodec() common.CmdCodec {
 
 //SetFunc 发送验证包的函数、读取数据包的函数
 func (connect *ClientConnecter) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte) bool, Once func()) {
-	connect.msgQueue = Queue
+	connect.clientMsg = Queue
 	connect.sendOnce = Once
 }
 
