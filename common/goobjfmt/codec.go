@@ -113,7 +113,6 @@ func (der *decoder) value(v reflect.Value) {
 		}
 
 	case reflect.Struct:
-		t := v.Type()
 		l := v.NumField()
 		for i := 0; i < l; i++ {
 			// Note: Calling v.CanSet() below is an optimization.
@@ -121,11 +120,8 @@ func (der *decoder) value(v reflect.Value) {
 			// but creating the StructField info for each field is
 			// costly (run "go test -bench=ReadStruct" and compare
 			// results when making changes to this code).
-			if vv := v.Field(i); v.CanSet() || t.Field(i).Name != "_" {
-				der.value(vv)
-			} else {
-				der.skip(vv)
-			}
+			vv := v.Field(i)
+			der.value(vv)
 		}
 	case reflect.String:
 		v.SetString(string(der.bytes()))
@@ -201,21 +197,12 @@ func (der *encoder) value(v reflect.Value) {
 	case reflect.Interface:
 		der.value(v.Elem())
 	case reflect.Struct:
-		t := v.Type()
 		l := v.NumField()
 		for i := 0; i < l; i++ {
 
 			v := v.Field(i)
 
-			tt := t.Field(i)
-
-			tag := tt.Tag.Get("binary")
-
-			if (v.CanSet() || tt.Name != "_") && tag != "-" {
-				der.value(v)
-			} else {
-				der.skip(v)
-			}
+			der.value(v)
 		}
 
 	case reflect.Slice:
@@ -276,16 +263,4 @@ func (der *encoder) value(v reflect.Value) {
 	default:
 		panic("encode: unsupport kind: " + v.Kind().String())
 	}
-}
-
-func (der *decoder) skip(v reflect.Value) {
-	der.buf = der.buf[dataSize(v, nil):]
-}
-
-func (der *encoder) skip(v reflect.Value) {
-	n := dataSize(v, nil)
-	for i := range der.buf[0:n] {
-		der.buf[i] = 0
-	}
-	der.buf = der.buf[n:]
 }

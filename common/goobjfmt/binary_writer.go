@@ -16,7 +16,7 @@ func BinaryWrite(obj interface{}) ([]byte, error) {
 
 	// Fallback to reflect-based encoding.
 	v := reflect.Indirect(reflect.ValueOf(obj))
-	size := dataSize(v, nil)
+	size, _ := dataSize(v, nil)
 	if size < 0 {
 		return nil, errInvalidType
 	}
