@@ -9,7 +9,7 @@ import (
 func BinaryRead(data []byte, obj interface{}) error {
 
 	if len(data) == 0 {
-		return nil
+		return errGetDatalen
 	}
 
 	v := reflect.ValueOf(obj)
@@ -24,7 +24,7 @@ func BinaryRead(data []byte, obj interface{}) error {
 		return errInvalidType
 	}
 
-	if len(data) != size && !indefinite {
+	if (len(data) != size && !indefinite) || (indefinite && len(data) < size) {
 		return errOutOfData
 	}
 

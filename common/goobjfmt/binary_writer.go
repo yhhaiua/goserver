@@ -9,6 +9,7 @@ import (
 var (
 	errInvalidType = errors.New("invalid type")
 	errOutOfData   = errors.New("length inconsistent")
+	errGetDatalen  = errors.New("length 0")
 )
 
 //BinaryWrite 写入data
