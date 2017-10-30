@@ -107,7 +107,7 @@ func (der *encoder) int64(x int64) { der.uint64(uint64(x)) }
 func (der *decoder) value(v reflect.Value) {
 	switch v.Kind() {
 	case reflect.Array:
-		l := int(der.int32())
+		l := v.Len()
 		for i := 0; i < l; i++ {
 			der.value(v.Index(i))
 		}
@@ -195,7 +195,6 @@ func (der *encoder) value(v reflect.Value) {
 	switch v.Kind() {
 	case reflect.Array:
 		l := v.Len()
-		der.int32(int32(l))
 		for i := 0; i < l; i++ {
 			der.value(v.Index(i))
 		}
