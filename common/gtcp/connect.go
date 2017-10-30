@@ -44,13 +44,13 @@ func (connect *ClientConnecter) Start() {
 	mTCPConnMap.Put(connect)
 }
 func (connect *ClientConnecter) startconnect() bool {
-	if connect.boRecon {
-		var err error
-		connect.conn, err = net.DialTCP("tcp", nil, connect.myTCPAddr)
+	if connect.baseSession == nil || connect.boRecon {
+
+		conn, err := net.DialTCP("tcp", nil, connect.myTCPAddr)
 		if err != nil {
 			glog.Errorf("startconnect连接失败4秒后再次连接 error:%s", err)
 		} else {
-			connect.baseInit()
+			connect.baseInit(conn)
 			connect.start()
 			connect.sendOnce()
 			return true
@@ -59,11 +59,10 @@ func (connect *ClientConnecter) startconnect() bool {
 	return false
 }
 
-func (connect *ClientConnecter) baseInit() {
+func (connect *ClientConnecter) baseInit(conn *net.TCPConn) {
 	//baseSession结构中的参数初始化
-	connect.baseSession = addbase(nil, int64(connect.nServerID), connect.clientname)
+	connect.baseSession = addbase(conn, int64(connect.nServerID), connect.clientname)
 	connect.newcodec(newcodecBinary)
-	connect.boRecon = true
 	connect.msgQueue = connect.clientMsg
 }
 
