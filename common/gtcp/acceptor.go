@@ -2,6 +2,8 @@ package gtcp
 
 import (
 	"net"
+	"sync"
+	"time"
 
 	"github.com/yhhaiua/goserver/common/glog"
 )
@@ -42,4 +44,48 @@ func runAccept(lister *net.TCPListener, backtype int32, callbackcon CallbackCon)
 		callbackcon(con, backtype)
 	}
 
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+var mCheckSessionMap stCheckSession
+
+type stCheckSession struct {
+	mymap *sync.Map
+}
+
+//Put 向队列中压人新的请求
+func (m *stCheckSession) Put(clent *ServerSession) {
+	m.mymap.Store(clent.servertag, clent)
+}
+func (m *stCheckSession) Del(servertag int64) {
+	m.mymap.Delete(servertag)
+}
+
+//Run 循环队列请求连接
+func (m *stCheckSession) Run() {
+
+	for {
+		m.mymap.Range(m.runCheck)
+		time.Sleep(5 * time.Second)
+	}
+
+}
+
+func (m *stCheckSession) runCheck(key, value interface{}) bool {
+	connect, zok := value.(*ServerSession)
+	if zok {
+		if connect.baseSession != nil {
+			connect.runCheck()
+		}
+		return true
+	}
+	return false
+}
+func (m *stCheckSession) newTCPConnMap() {
+	m.mymap = new(sync.Map)
+}
+
+func init() {
+	mCheckSessionMap.newTCPConnMap()
+	go mCheckSessionMap.Run()
 }

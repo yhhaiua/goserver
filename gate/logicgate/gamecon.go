@@ -29,6 +29,7 @@ func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
 	case protocol.ServerCmdLoginValue():
 		return con.loginCmd(data)
 	case protocol.ServerCmdHeartValue():
+		con.heartCmd(data)
 	default:
 	}
 	return true
@@ -55,6 +56,19 @@ func (con *stGameCon) loginCmd(data []byte) bool {
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == protocol.CHECKDATACODE {
 		con.SetValid(true)
 		glog.Infof("game服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
+		return true
+	}
+	return false
+}
+
+//heartCmd 心跳包
+func (con *stGameCon) heartCmd(data []byte) bool {
+	var retcmd protocol.ServerCmdHeart
+
+	err := con.Cmdcodec().Decode(data, &retcmd)
+
+	if common.CheckError(err, "ServerCmdHeart") {
+		con.Setheartbeat(&retcmd)
 		return true
 	}
 	return false

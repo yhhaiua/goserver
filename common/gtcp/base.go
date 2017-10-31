@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/yhhaiua/goserver/protocol"
+
 	"github.com/yhhaiua/goserver/common"
 
 	"github.com/yhhaiua/goserver/common/glog"
@@ -18,6 +20,25 @@ const (
 	initMybufLen     = 2048     //初始化buf长度
 	verificationtime = 30       //连接验证时间
 )
+
+const (
+	checkstatusNo   = 0
+	checkstatusWait = 1
+)
+
+type heartbeat struct {
+	checkstatus    int32
+	checktime      int64
+	checklock      sync.Mutex
+	checkTimeStart int32
+	checkTimeWait  int32
+}
+
+func (myheart *heartbeat) myInit() {
+	myheart.checkTimeStart = 120
+	myheart.checkTimeWait = 20
+	myheart.checktime = time.Now().Unix() + int64(myheart.checkTimeStart)
+}
 
 //BaseSession 连接结构
 type baseSession struct {
@@ -34,6 +55,8 @@ type baseSession struct {
 	starttime   int64
 	delLink     func(servertag int64)
 	endSync     sync.WaitGroup
+	myHeart     heartbeat
+	myHeartFunc func()
 }
 
 func addbase(conn *net.TCPConn, servertag int64, sname string) *baseSession {
@@ -42,6 +65,7 @@ func addbase(conn *net.TCPConn, servertag int64, sname string) *baseSession {
 	Session.servertag = servertag
 	Session.sname = sname
 	Session.sendMybuf.initSendBuf()
+	Session.myHeart.myInit()
 	return Session
 }
 func (connect *baseSession) newcodec(codectype int) {
@@ -208,14 +232,6 @@ func (connect *baseSession) runWrite() {
 		if connect.boConnected && connect.conn != nil {
 			connect.startSend()
 
-			if !connect.isValid() {
-				nowtime := time.Now().Unix()
-				if nowtime-connect.starttime > verificationtime {
-					glog.Errorf("%d秒连接验证超时%s,%d", verificationtime, connect.sname, connect.servertag)
-					connect.close()
-					break
-				}
-			}
 			//time.Sleep(time.Millisecond * 1)
 		} else {
 			break
@@ -224,4 +240,62 @@ func (connect *baseSession) runWrite() {
 	connect.conn.Close()
 	connect.endSync.Done()
 
+}
+
+func (connect *baseSession) runCheck() {
+	if connect.boConnected && connect.conn != nil {
+
+		if !connect.isValid() {
+			nowtime := time.Now().Unix()
+			if nowtime-connect.starttime > verificationtime {
+				glog.Errorf("%d秒连接验证超时%s,%d", verificationtime, connect.sname, connect.servertag)
+				connect.close()
+			}
+		} else {
+			if connect.myHeartFunc != nil {
+				connect.myHeartFunc()
+			} else {
+				//统一的心跳函数
+				connect.heartbeatCheck()
+			}
+
+		}
+	}
+}
+
+func (connect *baseSession) heartbeatCheck() {
+	connect.myHeart.checklock.Lock()
+	nowtime := time.Now().Unix()
+	if nowtime > connect.myHeart.checktime {
+		switch connect.myHeart.checkstatus {
+		case checkstatusNo:
+			var retcmd protocol.ServerCmdHeart
+			retcmd.Init()
+			retcmd.IsneedAck = true
+			connect.sendCmd(&retcmd)
+			connect.myHeart.checkstatus = checkstatusWait
+			connect.myHeart.checktime = nowtime + int64(connect.myHeart.checkTimeWait)
+			glog.Infof("发送心跳包 %s,%d", connect.sname, connect.servertag)
+		case checkstatusWait:
+			glog.Infof("没有收到心跳包关闭 %s,%d", connect.sname, connect.servertag)
+			connect.close()
+		}
+	}
+	connect.myHeart.checklock.Unlock()
+
+}
+func (connect *baseSession) Setheartbeat(pcmd *protocol.ServerCmdHeart) {
+	glog.Infof("收到心跳包 %s,%d", connect.sname, connect.servertag)
+	if pcmd.IsneedAck {
+		pcmd.IsneedAck = false
+		connect.sendCmd(pcmd)
+	}
+	if connect.myHeartFunc == nil {
+
+		nowtime := time.Now().Unix()
+		connect.myHeart.checklock.Lock()
+		connect.myHeart.checkstatus = checkstatusNo
+		connect.myHeart.checktime = nowtime + int64(connect.myHeart.checkTimeStart)
+		connect.myHeart.checklock.Unlock()
+	}
 }

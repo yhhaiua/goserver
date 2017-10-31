@@ -22,7 +22,7 @@ func (m *TCPConnMap) Run() {
 
 	for {
 		m.TimeAction()
-		time.Sleep(4 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 
 }
@@ -36,6 +36,10 @@ func (m *TCPConnMap) runCheck(key, value interface{}) bool {
 	connect, zok := value.(*ClientConnecter)
 	if zok {
 		connect.startconnect()
+
+		if connect.baseSession != nil {
+			connect.runCheck()
+		}
 		return true
 	}
 	return false

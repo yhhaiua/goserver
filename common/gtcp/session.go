@@ -10,6 +10,7 @@ import (
 //ServerSession 请求连接结构
 type ServerSession struct {
 	*baseSession
+	myDel func(servertag int64)
 }
 
 //AddSession 添加请求信息
@@ -31,12 +32,23 @@ func (connect *ServerSession) Cmdcodec() common.CmdCodec {
 //SetFunc 发送验证包的函数、断开回调包
 func (connect *ServerSession) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte) bool, Del func(servertag int64)) {
 	connect.msgQueue = Queue
-	connect.delLink = Del
+	connect.myDel = Del
+	connect.delLink = connect.myDellink
+}
+
+//myDellink 删除回调
+func (connect *ServerSession) myDellink(servertag int64) {
+
+	mCheckSessionMap.Del(servertag)
+	if connect.myDel != nil {
+		connect.myDel(connect.servertag)
+	}
 }
 
 //Start 开始连接
 func (connect *ServerSession) Start() {
 	connect.start()
+	mCheckSessionMap.Put(connect)
 }
 
 //SetValid 设置是否为激活状态
