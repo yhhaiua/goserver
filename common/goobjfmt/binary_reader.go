@@ -29,7 +29,9 @@ func BinaryRead(data []byte, obj interface{}) error {
 	}
 
 	d := &decoder{order: binary.LittleEndian, buf: data}
-	d.value(v)
-
+	ok := d.value(v)
+	if !ok {
+		return errOfData
+	}
 	return nil
 }

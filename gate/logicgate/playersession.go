@@ -6,6 +6,7 @@ import (
 	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gtcp"
+	"github.com/yhhaiua/goserver/comsvrsrc"
 	"github.com/yhhaiua/goserver/protocol"
 )
 
@@ -28,7 +29,7 @@ func (session *stPlayerSession) create(con *net.TCPConn, linkKey int64) bool {
 //putMsgQueue 消息队列
 func (session *stPlayerSession) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
-	case protocol.ServerCmdLoginValue():
+	case protocol.ServerCmdLoginCode:
 		return session.loginCmd(data)
 	default:
 	}
@@ -48,7 +49,7 @@ func (session *stPlayerSession) loginCmd(data []byte) bool {
 
 	err := session.Cmdcodec().Decode(data, &retcmd)
 
-	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == protocol.CHECKDATACODE {
+	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		session.SetValid(true)
 		glog.Infof("player %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
 		return true

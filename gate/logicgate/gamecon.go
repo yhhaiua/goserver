@@ -4,6 +4,7 @@ import (
 	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gtcp"
+	"github.com/yhhaiua/goserver/comsvrsrc"
 	"github.com/yhhaiua/goserver/protocol"
 )
 
@@ -26,9 +27,9 @@ func (con *stGameCon) create() bool {
 //putMsgQueue 消息队列
 func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
-	case protocol.ServerCmdLoginValue():
+	case protocol.ServerCmdLoginCode:
 		return con.loginCmd(data)
-	case protocol.ServerCmdHeartValue():
+	case protocol.ServerCmdHeartCode:
 		con.heartCmd(data)
 	default:
 	}
@@ -40,7 +41,7 @@ func (con *stGameCon) sendOnceCmd() {
 	var retcmd protocol.ServerCmdLogin
 	retcmd.Init()
 
-	retcmd.CheckData = protocol.CHECKDATACODE
+	retcmd.CheckData = comsvrsrc.CHECKDATACODE
 	retcmd.Svrid = Instance().serverid
 	retcmd.Svrtype = SERVERTYPE
 
@@ -53,7 +54,7 @@ func (con *stGameCon) loginCmd(data []byte) bool {
 
 	err := con.Cmdcodec().Decode(data, &retcmd)
 
-	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == protocol.CHECKDATACODE {
+	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		con.SetValid(true)
 		glog.Infof("game服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
 		return true

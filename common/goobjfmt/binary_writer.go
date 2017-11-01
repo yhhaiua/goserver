@@ -10,6 +10,7 @@ var (
 	errInvalidType = errors.New("invalid type")
 	errOutOfData   = errors.New("length inconsistent")
 	errGetDatalen  = errors.New("length 0")
+	errOfData      = errors.New("length error")
 )
 
 //BinaryWrite 写入data
