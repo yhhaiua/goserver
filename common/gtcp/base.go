@@ -131,7 +131,7 @@ func (connect *baseSession) isValid() bool {
 	return connect.bovalid
 }
 func (connect *baseSession) doInit() {
-	glog.Warningf("baseSession 连接成功 %d,%s", connect.servertag, connect.sname)
+	glog.Warningf("连接成功 %d,%s", connect.servertag, connect.sname)
 	connect.mrecvMybuf.newLoopBuf(initMybufLen)
 	connect.sendMybuf.newLoopBuf(initMybufLen)
 	connect.boConnected = true

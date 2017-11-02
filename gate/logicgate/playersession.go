@@ -39,7 +39,7 @@ func (session *stPlayerSession) putMsgQueue(pcmd *common.BaseCmd, data []byte) b
 //delCloseLink 断开连接回调
 func (session *stPlayerSession) delCloseLink(servertag int64) {
 
-	Instance().playerSyncMap().Delete(servertag)
+	Instance().syncMap().Delete(servertag)
 
 }
 

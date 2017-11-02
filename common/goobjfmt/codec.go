@@ -188,7 +188,7 @@ func (der *decoder) value(v reflect.Value) bool {
 
 		} else {
 			l, ok := der.int32()
-			if ok && l > 0 {
+			if ok && l > 0 && l < 500 { //不定长长度最多500
 				tempslice := reflect.MakeSlice(v.Type(), 1, 1)
 				onesize, _ := dataSize(tempslice.Index(0), nil)
 				ok = der.check(onesize * int(l))

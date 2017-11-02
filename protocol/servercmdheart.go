@@ -11,6 +11,6 @@ type ServerCmdHeart struct {
 
 //Init ServerCmdHeart初始化
 func (pcmd *ServerCmdHeart) Init() {
-	pcmd.Cmd = 255
-	pcmd.SupCmd = 254
+	pcmd.Cmd = 254
+	pcmd.SupCmd = 2
 }

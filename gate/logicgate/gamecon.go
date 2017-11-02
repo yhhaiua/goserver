@@ -13,8 +13,8 @@ type stGameCon struct {
 }
 
 //create 创建连接
-func (con *stGameCon) create() bool {
-	con.ClientConnecter = gtcp.AddConnect("172.16.3.141", Instance().config().sport, Instance().serverid, "game服务器")
+func (con *stGameCon) create(game *stGameConfig) bool {
+	con.ClientConnecter = gtcp.AddConnect(game.sip, game.sport, game.serverid, "game服务器")
 
 	if con.ClientConnecter != nil {
 		con.SetFunc(con.putMsgQueue, con.sendOnceCmd)

@@ -4,5 +4,5 @@ package protocol
 const (
 	//ServerCmd Cmd = 254
 	ServerCmdLoginCode = 510
-	ServerCmdHeartCode = 65279
+	ServerCmdHeartCode = 766
 )

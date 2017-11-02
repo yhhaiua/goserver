@@ -1,4 +1,4 @@
-package logicgate
+package logicgame
 
 import (
 	"net"
@@ -10,16 +10,15 @@ import (
 )
 
 //SERVERTYPE 服务器类型
-const SERVERTYPE = comsvrsrc.SERVERTYPEGATE
+const SERVERTYPE = comsvrsrc.SERVERTYPEGAME
 const (
-	callbackPLAYER = 10000
+	callbackGate = 10000
 )
 
 //Logicsvr 服务器数据
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
-	gameconmap    map[int32]*stGameCon
-	playerMap     *sync.Map
+	gateMap       *sync.Map
 	serverid      int32
 	linkKey       int64
 }
@@ -59,35 +58,17 @@ func (logic *Logicsvr) LogicInit(serverid int) bool {
 
 //allconnect所有的连接
 func (logic *Logicsvr) allconnect() bool {
-	//连接gs队列
-	logic.gameconmap = make(map[int32]*stGameCon)
-	//连接gs
-	success := logic.gameConInit()
 
+	success := true
 	return success
-}
-
-//game连接
-func (logic *Logicsvr) gameConInit() bool {
-	con := new(stGameCon)
-	num := len(logic.mstJSONConfig.gameconfing)
-	for i := 0; i < num; i++ {
-		game := &(logic.mstJSONConfig.gameconfing[i])
-		if con.create(game) {
-			logic.gameconmap[game.serverid] = con
-		} else {
-			return false
-		}
-	}
-	return true
 }
 
 //allListen所有的监听
 func (logic *Logicsvr) allListen() bool {
 
-	logic.playerMap = new(sync.Map)
+	logic.gateMap = new(sync.Map)
 
-	success := gtcp.AddListen("0.0.0.0", logic.config().sport, callbackPLAYER, logic.ListenCallback)
+	success := gtcp.AddListen("0.0.0.0", logic.config().sport, callbackGate, logic.ListenCallback)
 
 	return success
 }
@@ -99,18 +80,20 @@ func (logic *Logicsvr) getLinkKey() int64 {
 //ListenCallback 监听回调
 func (logic *Logicsvr) ListenCallback(con *net.TCPConn, backtype int32) {
 	switch backtype {
-	case callbackPLAYER:
-		logic.playerSessionInit(con)
+	case callbackGate:
+		logic.gateSessionInit(con)
 	default:
 	}
 }
 
 //玩家连接调用
-func (logic *Logicsvr) playerSessionInit(con *net.TCPConn) {
-	session := new(stPlayerSession)
+func (logic *Logicsvr) gateSessionInit(con *net.TCPConn) {
+	session := new(stGateSession)
+
 	key := logic.getLinkKey()
+
 	if session.create(con, key) {
-		logic.playerMap.Store(key, session)
+		logic.gateMap.Store(key, session)
 	}
 }
 func (logic *Logicsvr) config() *stJSONConfig {
@@ -118,16 +101,16 @@ func (logic *Logicsvr) config() *stJSONConfig {
 }
 
 func (logic *Logicsvr) syncMap() *sync.Map {
-	return logic.playerMap
+	return logic.gateMap
 }
 
 //SendPlayerCmd 发送给玩家信息
 func (logic *Logicsvr) SendPlayerCmd(key int64, data interface{}) {
 
-	value, ok := logic.playerMap.Load(key)
+	value, ok := logic.gateMap.Load(key)
 	if ok {
 
-		session, zok := value.(*stPlayerSession)
+		session, zok := value.(*stGateSession)
 		if zok {
 			session.SendCmd(data)
 		}
