@@ -57,6 +57,11 @@ func (mydata *stMysqlRead) Read() {
 			mydata.onceRead()
 		}
 
+		//for {
+		//	Instance().redisdb().Publish(comsvrsrc.SUBCHANNELlogin, "成功")
+		//	time.Sleep(time.Second * 5)
+		//}
+
 		for _ = range time.NewTicker(datetickertime).C {
 
 			mydata.dataRead()

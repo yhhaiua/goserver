@@ -66,6 +66,8 @@ func (logic *Logicsvr) redisCon() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	//监听订阅频道
+	logic.redisConnect.Subscribe(comsvrsrc.SUBCHANNELlogin)
 }
 
 func (logic *Logicsvr) routerInit() {
