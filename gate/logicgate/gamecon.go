@@ -3,6 +3,7 @@ package logicgate
 import (
 	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gpacket"
 	"github.com/yhhaiua/goserver/common/gtcp"
 	"github.com/yhhaiua/goserver/comsvrsrc"
 	"github.com/yhhaiua/goserver/protocol"
@@ -25,7 +26,7 @@ func (con *stGameCon) create(game *stGameConfig) bool {
 }
 
 //putMsgQueue 消息队列
-func (con *stGameCon) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
+func (con *stGameCon) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
 	case protocol.ServerCmdLoginCode:
 		return con.loginCmd(data)

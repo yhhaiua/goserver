@@ -1,9 +1,10 @@
-package common
+package gmysql
 
 import (
 	"database/sql"
 
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gredis"
 )
 
 //MysqlConfig 连接配置
@@ -71,12 +72,12 @@ func (mydb *MysqlDB) Create(dbname string) error {
 }
 
 //SavetoRedis mysql转存数据到redis
-func (mydb *MysqlDB) SavetoRedis(redisConnect *RedisPool, tablename string) {
+func (mydb *MysqlDB) SavetoRedis(redisConnect *gredis.RedisPacket, tablename string) {
 
 	go mydb.mysqltoredis(redisConnect, tablename)
 }
 
-func (mydb *MysqlDB) mysqltoredis(redisConnect *RedisPool, tablename string) {
+func (mydb *MysqlDB) mysqltoredis(redisConnect *gredis.RedisPacket, tablename string) {
 
 	sQuery := "SELECT * FROM " + tablename
 	rows, err := mydb.Query(sQuery)

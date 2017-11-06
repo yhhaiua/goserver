@@ -10,6 +10,7 @@ import (
 	"github.com/yhhaiua/goserver/common"
 
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gpacket"
 )
 
 const (
@@ -49,7 +50,7 @@ type baseSession struct {
 	conn        *net.TCPConn
 	mrecvMybuf  loopBuf
 	sendMybuf   loopBuf
-	msgQueue    func(pcmd *common.BaseCmd, data []byte) bool
+	msgQueue    func(pcmd *gpacket.BaseCmd, data []byte) bool
 	cmdcodec    common.CmdCodec
 	sname       string
 	starttime   int64
@@ -145,7 +146,7 @@ func (connect *baseSession) doRead() bool {
 		if connect.boConnected && connect.mrecvMybuf.canreadlen >= 8 {
 
 			tembuf := connect.mrecvMybuf.buf[connect.mrecvMybuf.getreadadd():connect.mrecvMybuf.getreadlenadd()]
-			var packet common.PacketBase
+			var packet gpacket.PacketBase
 
 			err := connect.cmdcodec.Decode(tembuf[:8], &packet)
 
@@ -185,7 +186,7 @@ func (connect *baseSession) sendCmd(data interface{}) {
 
 	if connect.boConnected {
 
-		var packet common.Packet
+		var packet gpacket.Packet
 		packet.Size = uint32(connect.cmdcodec.Size(data))
 		packet.Data = data
 		bytedata, err := connect.cmdcodec.Encode(&packet)

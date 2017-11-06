@@ -5,16 +5,15 @@ package logiclogin
 import (
 	io "io/ioutil"
 
-	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/gjson"
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gredis"
 )
 
 type stJSONConfig struct {
 	nloglvl      int                //日志等级
 	sport        string             //端口
-	mredisconfig common.RedisConfig //redis连接信息
-	mmysqlconfig common.MysqlConfig //mysql连接信息
+	mredisconfig gredis.RedisConfig //redis连接信息
 }
 
 func (Config *stJSONConfig) configInit(serverid int) bool {

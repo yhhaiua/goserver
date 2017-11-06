@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gredis"
 	"github.com/yhhaiua/goserver/common/grouter"
 	"github.com/yhhaiua/goserver/comsvrsrc"
 )
@@ -17,7 +17,7 @@ const SERVERTYPE = comsvrsrc.SERVERTYPELOGIN
 //Logicsvr 服务器数据
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
-	redisConnect  *common.RedisPool
+	redisConnect  *gredis.RedisPacket
 	routerConnect stRouterPost
 }
 
@@ -56,7 +56,7 @@ func (logic *Logicsvr) redisCon() {
 	for {
 		var err error
 
-		logic.redisConnect, err = common.NewRedis(&logic.mstJSONConfig.mredisconfig)
+		logic.redisConnect, err = gredis.NewRedis(&logic.mstJSONConfig.mredisconfig)
 
 		if err == nil {
 			glog.Infof("redis连接成功%s", logic.mstJSONConfig.mredisconfig.Shostport)
@@ -91,6 +91,6 @@ func (logic *Logicsvr) config() *stJSONConfig {
 	return &logic.mstJSONConfig
 }
 
-func (logic *Logicsvr) redisdb() *common.RedisPool {
+func (logic *Logicsvr) redisdb() *gredis.RedisPacket {
 	return logic.redisConnect
 }

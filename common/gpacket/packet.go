@@ -1,4 +1,4 @@
-package common
+package gpacket
 
 // PacketBase 基础包结构
 type PacketBase struct {

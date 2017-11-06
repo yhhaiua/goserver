@@ -1,10 +1,10 @@
 package protocol
 
-import "github.com/yhhaiua/goserver/common"
+import "github.com/yhhaiua/goserver/common/gpacket"
 
 //ServerCmdLogin 服务器间登录包
 type ServerCmdLogin struct {
-	common.BaseCmd
+	gpacket.BaseCmd
 	CheckData uint32
 	Svrid     int32
 	Svrtype   int32

@@ -1,4 +1,4 @@
-package common
+package gredis
 
 import (
 	"time"
@@ -229,15 +229,4 @@ func (rc *RedisPool) subscribe(sChannel string) {
 		}
 
 	}
-}
-
-//NewRedis redis创建
-func NewRedis(config *RedisConfig) (adapter *RedisPool, err error) {
-
-	adapter = newRedis()
-	err = adapter.start(config)
-	if err != nil {
-		adapter = nil
-	}
-	return
 }

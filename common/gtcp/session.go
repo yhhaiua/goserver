@@ -5,6 +5,7 @@ import (
 
 	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gpacket"
 )
 
 //ServerSession 请求连接结构
@@ -30,7 +31,7 @@ func (connect *ServerSession) Cmdcodec() common.CmdCodec {
 }
 
 //SetFunc 发送验证包的函数、断开回调包
-func (connect *ServerSession) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte) bool, Del func(servertag int64)) {
+func (connect *ServerSession) SetFunc(Queue func(pcmd *gpacket.BaseCmd, data []byte) bool, Del func(servertag int64)) {
 	connect.msgQueue = Queue
 	connect.myDel = Del
 	connect.delLink = connect.myDellink

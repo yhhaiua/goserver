@@ -4,8 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gmysql"
+	"github.com/yhhaiua/goserver/common/gredis"
 	"github.com/yhhaiua/goserver/comsvrsrc"
 )
 
@@ -15,8 +16,8 @@ const SERVERTYPE = comsvrsrc.SERVERTYPEDUTY
 //Logicsvr 服务器数据
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
-	redisConnect  *common.RedisPool
-	mysqlConnect  *common.MysqlDB
+	redisConnect  *gredis.RedisPacket
+	mysqlConnect  *gmysql.MysqlDB
 	mysqlread     *stMysqlRead
 	mysqlwrite    *stMysqlWrite
 }
@@ -60,7 +61,7 @@ func (logic *Logicsvr) redisCon() {
 	for {
 		var err error
 
-		logic.redisConnect, err = common.NewRedis(&logic.mstJSONConfig.mredisconfig)
+		logic.redisConnect, err = gredis.NewRedis(&logic.mstJSONConfig.mredisconfig)
 
 		if err == nil {
 			glog.Infof("redis连接成功%s", logic.mstJSONConfig.mredisconfig.Shostport)
@@ -78,7 +79,7 @@ func (logic *Logicsvr) mysqlCon() {
 
 	var err error
 
-	logic.mysqlConnect, err = common.NewMysql(&logic.mstJSONConfig.mmysqlconfig)
+	logic.mysqlConnect, err = gmysql.NewMysql(&logic.mstJSONConfig.mmysqlconfig)
 
 	if err == nil {
 		for {
@@ -109,10 +110,10 @@ func (logic *Logicsvr) config() *stJSONConfig {
 	return &logic.mstJSONConfig
 }
 
-func (logic *Logicsvr) mysqldb() *common.MysqlDB {
+func (logic *Logicsvr) mysqldb() *gmysql.MysqlDB {
 	return logic.mysqlConnect
 }
 
-func (logic *Logicsvr) redisdb() *common.RedisPool {
+func (logic *Logicsvr) redisdb() *gredis.RedisPacket {
 	return logic.redisConnect
 }

@@ -5,16 +5,17 @@ package logicduty
 import (
 	io "io/ioutil"
 
-	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/gjson"
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gmysql"
+	"github.com/yhhaiua/goserver/common/gredis"
 )
 
 type stJSONConfig struct {
 	nloglvl      int                //日志等级
 	readdata     int                //是否读取数据(0读取1不读取)
-	mredisconfig common.RedisConfig //redis连接信息
-	mmysqlconfig common.MysqlConfig //mysql连接信息
+	mredisconfig gredis.RedisConfig //redis连接信息
+	mmysqlconfig gmysql.MysqlConfig //mysql连接信息
 }
 
 func (Config *stJSONConfig) isRead() bool {
@@ -23,6 +24,7 @@ func (Config *stJSONConfig) isRead() bool {
 	}
 	return false
 }
+
 func (Config *stJSONConfig) configInit(serverid int) bool {
 
 	path := "./config/config.json"

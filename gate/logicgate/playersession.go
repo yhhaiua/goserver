@@ -5,6 +5,7 @@ import (
 
 	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gpacket"
 	"github.com/yhhaiua/goserver/common/gtcp"
 	"github.com/yhhaiua/goserver/comsvrsrc"
 	"github.com/yhhaiua/goserver/protocol"
@@ -27,7 +28,7 @@ func (session *stPlayerSession) create(con *net.TCPConn, linkKey int64) bool {
 }
 
 //putMsgQueue 消息队列
-func (session *stPlayerSession) putMsgQueue(pcmd *common.BaseCmd, data []byte) bool {
+func (session *stPlayerSession) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
 	case protocol.ServerCmdLoginCode:
 		return session.loginCmd(data)

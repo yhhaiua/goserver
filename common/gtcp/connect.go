@@ -6,6 +6,7 @@ import (
 	"github.com/yhhaiua/goserver/common"
 
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/gpacket"
 )
 
 //ClientConnecter 请求连接结构
@@ -14,7 +15,7 @@ type ClientConnecter struct {
 	myTCPAddr  *net.TCPAddr
 	nServerID  int32
 	sendOnce   func()
-	clientMsg  func(pcmd *common.BaseCmd, data []byte) bool
+	clientMsg  func(pcmd *gpacket.BaseCmd, data []byte) bool
 	clientname string
 }
 
@@ -72,7 +73,7 @@ func (connect *ClientConnecter) Cmdcodec() common.CmdCodec {
 }
 
 //SetFunc 发送验证包的函数、读取数据包的函数
-func (connect *ClientConnecter) SetFunc(Queue func(pcmd *common.BaseCmd, data []byte) bool, Once func()) {
+func (connect *ClientConnecter) SetFunc(Queue func(pcmd *gpacket.BaseCmd, data []byte) bool, Once func()) {
 	connect.clientMsg = Queue
 	connect.sendOnce = Once
 }

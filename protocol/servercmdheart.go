@@ -1,10 +1,10 @@
 package protocol
 
-import "github.com/yhhaiua/goserver/common"
+import "github.com/yhhaiua/goserver/common/gpacket"
 
 //ServerCmdHeart 服务器间心跳包
 type ServerCmdHeart struct {
-	common.BaseCmd
+	gpacket.BaseCmd
 	IsneedAck bool
 	Checknum  int8
 }
