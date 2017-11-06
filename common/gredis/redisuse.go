@@ -3,8 +3,6 @@ package gredis
 import (
 	"time"
 
-	"github.com/yhhaiua/goserver/common/glog"
-
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -193,40 +191,5 @@ func (rc *RedisPool) connectInit(config *RedisConfig) {
 		MaxActive:   config.Maxopen,
 		IdleTimeout: 300 * time.Second,
 		Dial:        dialFunc,
-	}
-}
-
-//Publish 发布
-func (rc *RedisPool) Publish(sChannel string, value interface{}) error {
-	var err error
-	if _, err = rc.do("PUBLISH", sChannel, value); err != nil {
-		return err
-	}
-	return err
-}
-
-//Subscribe 订阅
-func (rc *RedisPool) Subscribe(sChannel string) {
-	go rc.subscribe(sChannel)
-}
-func (rc *RedisPool) subscribe(sChannel string) {
-	c := rc.p.Get()
-	defer c.Close()
-	psc := new(redis.PubSubConn)
-	psc.Conn = c
-	psc.Subscribe(sChannel)
-	for {
-		switch v := psc.Receive().(type) {
-		case redis.Subscription:
-			glog.Infof("%s: %s %d\n", v.Channel, v.Kind, v.Count)
-		case redis.Message: //单个订阅subscribe
-			glog.Infof("%s: message: %s\n", v.Channel, v.Data)
-		case redis.PMessage: //模式订阅psubscribe
-			glog.Infof("PMessage: %s %s %s\n", v.Pattern, v.Channel, v.Data)
-		case error:
-			return
-
-		}
-
 	}
 }
