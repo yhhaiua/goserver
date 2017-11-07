@@ -1,0 +1,10 @@
+
+v1.0.0（缺）
+  1.login多个网关端口解析
+  2.login名字检测和自动取名、改名
+  3.gate和game之间确立玩家断线和服务器断开之间的操作
+  4.gamemanage管理gate和game之间的联系
+  5.game分功能模块写法
+  6.game接包写法
+  7.game与redis的数据连接
+  8.增加gameduty从redis中保存game游戏数据
