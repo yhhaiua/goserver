@@ -9,3 +9,5 @@ v1.0.0（缺）
   7.game与redis的数据连接
   8.增加gameduty从redis中保存game游戏数据
   9.websocket增加、udp协议增加
+  10.game读取配置文件csv(动态加载配置文件)
+  11.导包工具（xml转成go文件）
