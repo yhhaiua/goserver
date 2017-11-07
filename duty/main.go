@@ -22,9 +22,9 @@ func main() {
 	if svrsplit == nil || len(svrsplit) != 2 {
 		return
 	}
-	svrid, error := strconv.Atoi(svrsplit[1])
+	svrid, err := strconv.Atoi(svrsplit[1])
 
-	if error == nil {
+	if err == nil {
 		sdir := "./log/dutyServer_" + svrsplit[1]
 		glog.SetlogDir(sdir)
 
