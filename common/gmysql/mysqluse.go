@@ -2,6 +2,7 @@ package gmysql
 
 import (
 	"database/sql"
+	"sync"
 
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gredis"
@@ -72,12 +73,12 @@ func (mydb *MysqlDB) Create(dbname string) error {
 }
 
 //SavetoRedis mysql转存数据到redis
-func (mydb *MysqlDB) SavetoRedis(redisConnect *gredis.RedisPacket, tablename string) {
+func (mydb *MysqlDB) SavetoRedis(redisConnect *gredis.RedisPacket, tablename string, endSync *sync.WaitGroup) {
 
-	go mydb.mysqltoredis(redisConnect, tablename)
+	go mydb.mysqltoredis(redisConnect, tablename, endSync)
 }
 
-func (mydb *MysqlDB) mysqltoredis(redisConnect *gredis.RedisPacket, tablename string) {
+func (mydb *MysqlDB) mysqltoredis(redisConnect *gredis.RedisPacket, tablename string, endSync *sync.WaitGroup) {
 
 	sQuery := "SELECT * FROM " + tablename
 	rows, err := mydb.Query(sQuery)
@@ -105,6 +106,9 @@ func (mydb *MysqlDB) mysqltoredis(redisConnect *gredis.RedisPacket, tablename st
 	} else {
 
 		glog.Errorf("mysql读取错误 %s 1 %s", tablename, err)
+	}
+	if endSync != nil {
+		endSync.Done()
 	}
 }
 

@@ -19,6 +19,7 @@ type Logicsvr struct {
 	mstJSONConfig stJSONConfig
 	redisConnect  *gredis.RedisPacket
 	routerConnect stRouterPost
+	myredismsg    *stRedisMsg
 }
 
 var (
@@ -66,6 +67,9 @@ func (logic *Logicsvr) redisCon() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	//设置redis接包
+	logic.myredismsg = new(stRedisMsg)
+	logic.redisConnect.SetFunc(logic.myredismsg.putMsgQueue)
 	//监听订阅频道
 	logic.redisConnect.Subscribe(comsvrsrc.SUBCHANNELlogin)
 }
@@ -93,4 +97,7 @@ func (logic *Logicsvr) config() *stJSONConfig {
 
 func (logic *Logicsvr) redisdb() *gredis.RedisPacket {
 	return logic.redisConnect
+}
+func (logic *Logicsvr) redismsg() *stRedisMsg {
+	return logic.myredismsg
 }

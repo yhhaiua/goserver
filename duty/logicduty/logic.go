@@ -20,6 +20,7 @@ type Logicsvr struct {
 	mysqlConnect  *gmysql.MysqlDB
 	mysqlread     *stMysqlRead
 	mysqlwrite    *stMysqlWrite
+	myredismsg    *stRedisMsg
 }
 
 var (
@@ -71,6 +72,9 @@ func (logic *Logicsvr) redisCon() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	//设置redis接包
+	logic.myredismsg = new(stRedisMsg)
+	logic.redisConnect.SetFunc(logic.myredismsg.putMsgQueue)
 	//监听订阅频道
 	logic.redisConnect.Subscribe(comsvrsrc.SUBCHANNELduty)
 }
@@ -116,4 +120,7 @@ func (logic *Logicsvr) mysqldb() *gmysql.MysqlDB {
 
 func (logic *Logicsvr) redisdb() *gredis.RedisPacket {
 	return logic.redisConnect
+}
+func (logic *Logicsvr) redismsg() *stRedisMsg {
+	return logic.myredismsg
 }

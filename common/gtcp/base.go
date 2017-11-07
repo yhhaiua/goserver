@@ -1,6 +1,8 @@
 package gtcp
 
 import (
+	"bytes"
+	"encoding/binary"
 	"net"
 	"sync"
 	"time"
@@ -10,6 +12,7 @@ import (
 	"github.com/yhhaiua/goserver/common"
 
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/goobjfmt"
 	"github.com/yhhaiua/goserver/common/gpacket"
 )
 
@@ -148,7 +151,7 @@ func (connect *baseSession) doRead() bool {
 			tembuf := connect.mrecvMybuf.buf[connect.mrecvMybuf.getreadadd():connect.mrecvMybuf.getreadlenadd()]
 			var packet gpacket.PacketBase
 
-			err := connect.cmdcodec.Decode(tembuf[:8], &packet)
+			err := goobjfmt.BinaryRead(tembuf[:8], &packet)
 
 			if err != nil {
 				glog.Errorf("收到恶意攻击包%s,%d,%s", connect.sname, connect.servertag, err)
@@ -186,15 +189,28 @@ func (connect *baseSession) sendCmd(data interface{}) {
 
 	if connect.boConnected {
 
-		var packet gpacket.Packet
-		packet.Size = uint32(connect.cmdcodec.Size(data))
-		packet.Data = data
-		bytedata, err := connect.cmdcodec.Encode(&packet)
+		bytedata, err := connect.cmdcodec.Encode(data)
 		if err != nil {
 			glog.Errorf("data err:%s,%d,%s", connect.sname, connect.servertag, err)
 			return
 		}
-		connect.sendMybuf.addSendBuf(bytedata, len(bytedata))
+		var packet gpacket.Packet
+		packet.Size = uint32(connect.cmdcodec.Size(data))
+
+		var outputHeadBuffer bytes.Buffer
+		if err = binary.Write(&outputHeadBuffer, binary.LittleEndian, &packet); err != nil {
+			glog.Errorf("data packet err:%s,%d,%s", connect.sname, connect.servertag, err)
+			return
+		}
+
+		err = binary.Write(&outputHeadBuffer, binary.LittleEndian, bytedata)
+
+		if err != nil {
+			glog.Errorf("data bytedata err:%s,%d,%s", connect.sname, connect.servertag, err)
+			return
+		}
+
+		connect.sendMybuf.addSendBuf(outputHeadBuffer.Bytes(), outputHeadBuffer.Len())
 	}
 
 }

@@ -19,7 +19,6 @@ type Packet struct {
 	Size    uint32
 	Encrypt uint8
 	Keep    uint8
-	Data    interface{}
 }
 
 //Value 获取BasCmd的value值

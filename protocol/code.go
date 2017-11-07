@@ -5,4 +5,5 @@ const (
 	//ServerCmd Cmd = 254
 	ServerCmdLoginCode = 510
 	ServerCmdHeartCode = 766
+	ServerCmdConCode   = 1022
 )

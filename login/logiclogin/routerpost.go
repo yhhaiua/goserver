@@ -33,16 +33,17 @@ type stAccountMessage struct {
 }
 
 const (
-	routerRetSucc    = 0 //成功
-	routerRetFail    = 1 //数据读取失败
-	routerRetNoPname = 2 //没有对应平台版本
-	routerRetVersion = 3 //版本错误更新新版本有URL内容
-	routerRetNoJSON  = 4 //服务端解析失败
-	routerMd5Error   = 5 //MD5错误
-	routerRepeatAcc  = 6 //重复创建账号
-	routerRetNoZone  = 7 //没有区服数据
-	routerRetNoOnly  = 8 //OnlyId获取失败
-	routerRetSave    = 9 //保存数据失败
+	routerRetSucc    = 0  //成功
+	routerRetFail    = 1  //数据读取失败
+	routerRetNoPname = 2  //没有对应平台版本
+	routerRetVersion = 3  //版本错误更新新版本有URL内容
+	routerRetNoJSON  = 4  //服务端解析失败
+	routerMd5Error   = 5  //MD5错误
+	routerRepeatAcc  = 6  //重复创建账号
+	routerRetNoZone  = 7  //没有区服数据
+	routerRetNoOnly  = 8  //OnlyId获取失败
+	routerRetSave    = 9  //保存数据失败
+	routerRetLoad    = 10 //正在加载数据
 )
 
 const (
@@ -232,25 +233,30 @@ func (MessageCode *stRetMessage) getMessage(r *http.Request) {
 	MessageCode.Code = routerRetSucc
 
 	if Instance().redisdb() != nil {
-		TempDataName := versionData + pname
-		value, err := Instance().redisdb().Get(TempDataName)
+		if Instance().redismsg().boCon() {
+			TempDataName := versionData + pname
+			value, err := Instance().redisdb().Get(TempDataName)
 
-		if err == nil {
-			var RedisData stRedisVersion
-			if err = json.Unmarshal([]byte(value), &RedisData); err == nil {
-				if RedisData.Version == version {
+			if err == nil {
+				var RedisData stRedisVersion
+				if err = json.Unmarshal([]byte(value), &RedisData); err == nil {
+					if RedisData.Version == version {
 
+					} else {
+						MessageCode.Code = routerRetVersion
+						MessageCode.URL = RedisData.URL
+					}
 				} else {
-					MessageCode.Code = routerRetVersion
-					MessageCode.URL = RedisData.URL
+					MessageCode.Code = routerRetNoJSON
 				}
-			} else {
-				MessageCode.Code = routerRetNoJSON
-			}
 
+			} else {
+				MessageCode.Code = routerRetNoPname
+			}
 		} else {
-			MessageCode.Code = routerRetNoPname
+			MessageCode.Code = routerRetLoad
 		}
+
 	} else {
 		MessageCode.Code = routerRetFail
 	}

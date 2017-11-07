@@ -69,9 +69,9 @@ func (logic *Logicsvr) allconnect() bool {
 
 //game连接
 func (logic *Logicsvr) gameConInit() bool {
-	con := new(stGameCon)
 	num := len(logic.mstJSONConfig.gameconfing)
 	for i := 0; i < num; i++ {
+		con := new(stGameCon)
 		game := &(logic.mstJSONConfig.gameconfing[i])
 		if con.create(game) {
 			logic.gameconmap[game.serverid] = con

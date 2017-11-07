@@ -1,9 +1,13 @@
 package gredis
 
 import (
+	"bytes"
+	"encoding/binary"
+
 	"github.com/garyburd/redigo/redis"
 	"github.com/yhhaiua/goserver/common"
 	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/goobjfmt"
 	"github.com/yhhaiua/goserver/common/gpacket"
 )
 
@@ -17,15 +21,27 @@ type RedisPacket struct {
 //SendCmd 向redis频道发送数据
 func (rc *RedisPacket) SendCmd(sChannel string, data interface{}) {
 
-	var packet gpacket.Packet
-	packet.Size = uint32(rc.cmdcodec.Size(data))
-	packet.Data = data
-	bytedata, err := rc.cmdcodec.Encode(&packet)
+	bytedata, err := rc.cmdcodec.Encode(data)
 	if err != nil {
 		glog.Errorf("data err:%s", err)
 		return
 	}
-	rc.Publish(sChannel, bytedata)
+	var packet gpacket.Packet
+	packet.Size = uint32(rc.cmdcodec.Size(data))
+
+	var outputHeadBuffer bytes.Buffer
+	if err = binary.Write(&outputHeadBuffer, binary.LittleEndian, &packet); err != nil {
+		glog.Errorf("data packet err:%s", err)
+		return
+	}
+
+	err = binary.Write(&outputHeadBuffer, binary.LittleEndian, bytedata)
+
+	if err != nil {
+		glog.Errorf("data bytedata err:%s", err)
+		return
+	}
+	rc.Publish(sChannel, outputHeadBuffer.Bytes())
 }
 
 //Publish 发布
@@ -52,7 +68,7 @@ func (rc *RedisPacket) subscribe(sChannel string) {
 		case redis.Subscription:
 			glog.Infof("%s: %s %d\n", v.Channel, v.Kind, v.Count)
 		case redis.Message: //单个订阅subscribe
-			glog.Infof("%s: message: %s\n", v.Channel, v.Data)
+			//glog.Infof("%s: message: %s\n", v.Channel, v.Data)
 			rc.doRead(v.Data)
 		case redis.PMessage: //模式订阅psubscribe
 			glog.Infof("PMessage: %s %s %s\n", v.Pattern, v.Channel, v.Data)
@@ -69,7 +85,7 @@ func (rc *RedisPacket) doRead(data []byte) {
 	if datalen >= 8 {
 		var packet gpacket.PacketBase
 
-		err := rc.cmdcodec.Decode(data[:8], &packet)
+		err := goobjfmt.BinaryRead(data[:8], &packet)
 
 		if err != nil {
 			glog.Errorf("收到恶意攻击包%s", err)
@@ -82,7 +98,7 @@ func (rc *RedisPacket) doRead(data []byte) {
 		newlen := int(packet.Size + 6)
 		if datalen == newlen {
 			//包处理
-			if rc.msgQueue(&packet.Pcmd, data[6:packet.Size+6]) {
+			if rc.msgQueue != nil && rc.msgQueue(&packet.Pcmd, data[6:packet.Size+6]) {
 
 			} else {
 				return

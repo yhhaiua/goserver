@@ -3,6 +3,7 @@ package logicduty
 import (
 	"encoding/json"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/yhhaiua/goserver/common/glog"
@@ -31,6 +32,7 @@ type stZoneData struct {
 type stMysqlRead struct {
 	versionMap  map[string]stVersionData //平台配置
 	zonedataMap map[string]stZoneData    //区服配置
+	endSync     sync.WaitGroup
 }
 
 const (
@@ -57,10 +59,8 @@ func (mydata *stMysqlRead) Read() {
 			mydata.onceRead()
 		}
 
-		//for {
-		//	Instance().redisdb().Publish(comsvrsrc.SUBCHANNELlogin, "成功")
-		//	time.Sleep(time.Second * 5)
-		//}
+		//读完数据连接login服务器
+		Instance().redismsg().runSendLogin()
 
 		for _ = range time.NewTicker(datetickertime).C {
 
@@ -266,11 +266,15 @@ func (mydata *stMysqlRead) onlyidDataRead() {
 
 func (mydata *stMysqlRead) accountDataRead() {
 
+	maplen := len(mydata.zonedataMap)
+	if maplen > 0 {
+		mydata.endSync.Add(maplen)
+	}
 	for mapkey := range mydata.zonedataMap {
 
 		tablename := cAccountData + mapkey
 
-		Instance().mysqldb().SavetoRedis(Instance().redisdb(), tablename)
+		Instance().mysqldb().SavetoRedis(Instance().redisdb(), tablename, &mydata.endSync)
 	}
-
+	mydata.endSync.Wait()
 }
