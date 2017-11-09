@@ -21,7 +21,7 @@ func AddSession(conn *net.TCPConn, backtype int64, sname string) *ServerSession 
 	//包解析
 	Session.newcodec(newcodecBinary)
 
-	glog.Warningf("有新的连接进入 %s,%d", sname, backtype)
+	glog.Infof("有新的连接进入 %s,%d", sname, backtype)
 	return Session
 }
 
@@ -65,6 +65,6 @@ func (connect *ServerSession) SendCmd(data interface{}) {
 
 //Close 关闭连接
 func (connect *ServerSession) Close() {
-	glog.Warningf("主动调用关闭 %s,%d", connect.sname, connect.servertag)
+	glog.Infof("主动调用关闭 %s,%d", connect.sname, connect.servertag)
 	connect.close()
 }

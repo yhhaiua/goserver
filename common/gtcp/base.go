@@ -121,7 +121,7 @@ func (connect *baseSession) runRead() {
 func (connect *baseSession) doClose() {
 	connect.bovalid = false
 	connect.boRecon = true
-	glog.Warningf("连接关闭%s,%d", connect.sname, connect.servertag)
+	glog.Infof("连接关闭%s,%d", connect.sname, connect.servertag)
 	if connect.delLink != nil {
 		connect.delLink(connect.servertag)
 	}
@@ -135,7 +135,7 @@ func (connect *baseSession) isValid() bool {
 	return connect.bovalid
 }
 func (connect *baseSession) doInit() {
-	glog.Warningf("连接成功 %d,%s", connect.servertag, connect.sname)
+	glog.Infof("连接成功 %d,%s", connect.servertag, connect.sname)
 	connect.mrecvMybuf.newLoopBuf(initMybufLen)
 	connect.sendMybuf.newLoopBuf(initMybufLen)
 	connect.boConnected = true

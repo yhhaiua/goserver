@@ -33,7 +33,7 @@ func AddConnect(serverip, port string, serverid int32, servername string) *Clien
 		return nil
 	}
 
-	glog.Warningf("尝试连接ip:[%s],prot:[%s],serverid:[%d]", serverip, port, serverid)
+	glog.Infof("尝试连接ip:[%s],prot:[%s],serverid:[%d]", serverip, port, serverid)
 	return Connecter
 }
 
@@ -90,6 +90,6 @@ func (connect *ClientConnecter) SendCmd(data interface{}) {
 
 //Close 关闭连接
 func (connect *ClientConnecter) Close() {
-	glog.Warningf("主动调用关闭 %s,%d", connect.sname, connect.servertag)
+	glog.Infof("主动调用关闭 %s,%d", connect.sname, connect.servertag)
 	connect.close()
 }
