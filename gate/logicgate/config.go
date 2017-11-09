@@ -9,15 +9,15 @@ import (
 	"github.com/yhhaiua/goserver/common/glog"
 )
 
-type stGameConfig struct {
+type stManageConfig struct {
 	sip      string
 	sport    string
 	serverid int32
 }
 type stJSONConfig struct {
-	nloglvl     int    //日志等级
-	sport       string //端口
-	gameconfing []stGameConfig
+	nloglvl       int    //日志等级
+	sport         string //端口
+	manageconfing stManageConfig
 }
 
 func (Config *stJSONConfig) configInit(serverid int) bool {
@@ -56,25 +56,22 @@ func (Config *stJSONConfig) configInit(serverid int) bool {
 			glog.Setloglvl(Config.nloglvl)
 		}
 	}
-	//读取game
-	key = "game"
+	//读取manage
+	key = "manage"
 	keydata = gjson.NewGet(jsondata, key)
 	if keydata.IsValid() {
 		num := keydata.Getnum()
-		var gameconfig stGameConfig
 		for i := 0; i < num; i++ {
 			data := gjson.NewGetindex(keydata, i)
 			if data.IsValid() {
-				gameconfig.sip = data.Getstring("ip")
-				gameconfig.sport = data.Getstring("port")
-				gameconfig.serverid = data.Getint32("id")
-				Config.gameconfing = append(Config.gameconfing, gameconfig)
+				Config.manageconfing.sip = data.Getstring("ip")
+				Config.manageconfing.sport = data.Getstring("gateport")
+				Config.manageconfing.serverid = data.Getint32("id")
 			} else {
-				glog.Errorf("game Failed to config file '%s'", path)
+				glog.Errorf("manage Failed to config file '%s'", path)
 				return false
 			}
 		}
 	}
-	glog.Infof("game连接数 %d", len(Config.gameconfing))
 	return true
 }

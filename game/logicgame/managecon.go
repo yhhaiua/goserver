@@ -1,4 +1,4 @@
-package logicgate
+package logicgame
 
 import (
 	"github.com/yhhaiua/goserver/common"
@@ -9,13 +9,13 @@ import (
 	"github.com/yhhaiua/goserver/protocol"
 )
 
-type stGameCon struct {
+type stManageCon struct {
 	*gtcp.ClientConnecter
 }
 
 //create 创建连接
-func (con *stGameCon) create(sip, sport string, serverid int32) bool {
-	con.ClientConnecter = gtcp.AddConnect(sip, sport, serverid, "game服务器")
+func (con *stManageCon) create(game *stManageConfig) bool {
+	con.ClientConnecter = gtcp.AddConnect(game.sip, game.sport, game.serverid, "manage务器")
 
 	if con.ClientConnecter != nil {
 		con.SetFunc(con.putMsgQueue, con.sendOnceCmd)
@@ -26,7 +26,7 @@ func (con *stGameCon) create(sip, sport string, serverid int32) bool {
 }
 
 //putMsgQueue 消息队列
-func (con *stGameCon) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
+func (con *stManageCon) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
 	case protocol.ServerCmdLoginCode:
 		return con.loginCmd(data)
@@ -38,7 +38,7 @@ func (con *stGameCon) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 }
 
 //sendOnceCmd 连接发送验证包
-func (con *stGameCon) sendOnceCmd() {
+func (con *stManageCon) sendOnceCmd() {
 	var retcmd protocol.ServerCmdLogin
 	retcmd.Init()
 
@@ -50,21 +50,21 @@ func (con *stGameCon) sendOnceCmd() {
 }
 
 //loginCmd 收到验证返回包
-func (con *stGameCon) loginCmd(data []byte) bool {
+func (con *stManageCon) loginCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdLogin
 
 	err := con.Cmdcodec().Decode(data, &retcmd)
 
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		con.SetValid(true)
-		glog.Infof("game服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
+		glog.Infof("manage服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
 		return true
 	}
 	return false
 }
 
 //heartCmd 心跳包
-func (con *stGameCon) heartCmd(data []byte) bool {
+func (con *stManageCon) heartCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdHeart
 
 	err := con.Cmdcodec().Decode(data, &retcmd)

@@ -1,4 +1,4 @@
-package logicgame
+package logicmanage
 
 import (
 	io "io/ioutil"
@@ -7,21 +7,16 @@ import (
 	"github.com/yhhaiua/goserver/common/glog"
 )
 
-type stManageConfig struct {
-	sip      string
-	sport    string
-	serverid int32
-}
 type stJSONConfig struct {
-	nloglvl       int    //日志等级
-	sport         string //端口
-	manageconfing stManageConfig
+	nloglvl   int    //日志等级
+	sgateport string //端口
+	sgameport string //端口
 }
 
 func (Config *stJSONConfig) configInit(serverid int) bool {
 
 	path := "./config/config.json"
-	key := "game"
+	key := "manage"
 	data, err := io.ReadFile(path)
 	if err != nil {
 		glog.Errorf("Failed to open config file '%s': %s\n", path, err)
@@ -45,7 +40,8 @@ func (Config *stJSONConfig) configInit(serverid int) bool {
 		if data.IsValid() {
 
 			Config.nloglvl = data.Getint("loglvl")
-			Config.sport = data.Getstring("port")
+			Config.sgateport = data.Getstring("gateport")
+			Config.sgameport = data.Getstring("gameport")
 		} else {
 			glog.Errorf("Failed to config file '%s'", path)
 			return false
@@ -54,22 +50,6 @@ func (Config *stJSONConfig) configInit(serverid int) bool {
 			glog.Setloglvl(Config.nloglvl)
 		}
 	}
-	//读取manage
-	key = "manage"
-	keydata = gjson.NewGet(jsondata, key)
-	if keydata.IsValid() {
-		num := keydata.Getnum()
-		for i := 0; i < num; i++ {
-			data := gjson.NewGetindex(keydata, i)
-			if data.IsValid() {
-				Config.manageconfing.sip = data.Getstring("ip")
-				Config.manageconfing.sport = data.Getstring("gameport")
-				Config.manageconfing.serverid = data.Getint32("id")
-			} else {
-				glog.Errorf("manage Failed to config file '%s'", path)
-				return false
-			}
-		}
-	}
+
 	return true
 }
