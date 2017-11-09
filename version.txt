@@ -3,7 +3,7 @@ v1.0.0（缺）
   1.login多个网关端口解析
   2.login名字检测和自动取名、改名
   3.gate和game之间确立玩家断线和服务器断开之间的操作
-  4.gamemanage管理gate和game之间的联系
+  4.manage管理gate和game之间的联系
   5.game分功能模块写法
   6.game接包写法
   7.game与redis的数据连接
@@ -11,3 +11,9 @@ v1.0.0（缺）
   9.websocket增加、udp协议增加
   10.game读取配置文件csv(动态加载配置文件)
   11.导包工具（xml转成go文件）
+manage:
+  1.与gate和game连接
+  2.发送所有的game信息到所有的gate上，使得gate动态连接game
+  3.登录流程通过gate转到manage上判断player进入哪个game
+  4.增加redis频道监听、通知manage可以进行player登录
+  5.选出符合的game服务器
