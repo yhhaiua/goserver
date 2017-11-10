@@ -19,8 +19,10 @@
 		<field name="Field12" type="refArray" refType="uint64"/>
 		<field name="Field13" type="refArray" refType="int64"/>
 		<field name="Field14" type="refArray" refType="uint8"/>
+		<field name="Field14" type="refArray" refType="int8"/>
 		<field name="Field15" type="refArray" refType="string"/>
 		<field name="Field16" type="refArray" refType="bool"/>
+		<field name="Field16" type="refArray" refType="byte"/>
     </packet>
 	
     <ref  name="CFake" des="测试结构">

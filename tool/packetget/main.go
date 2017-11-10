@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-const dir = "./"
+const dir = "../../protocol/"
 
 //StField field
 type StField struct {
@@ -47,6 +47,7 @@ type Ref struct {
 
 var myPacketGet PacketGet
 var myRefMap map[string]OneRef
+var myref Ref
 
 func main() {
 
@@ -62,24 +63,29 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	log.Println(myPacketGet)
+	//log.Println(myPacketGet)
 
-	var myref Ref
 	err = xml.Unmarshal(content, &myref)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	log.Println(myref)
+	//log.Println(myref)
 
-	for _, temref := range myref.MyRef {
-		myRefMap[temref.Name] = temref
-	}
 	conversionGo()
 }
 
 func conversionGo() {
 
+	for _, temref := range myref.MyRef {
+		filename := strings.ToLower(temref.Name)
+		filename = dir + filename + ".go"
+		file, err := os.Create(filename)
+		if err == nil {
+			defer file.Close()
+			oneconversionref(file, &temref)
+		}
+	}
 	for _, temppacket := range myPacketGet.Packet {
 
 		filename := strings.ToLower(temppacket.Name)
@@ -92,12 +98,39 @@ func conversionGo() {
 	}
 }
 
+func oneconversionref(file *os.File, data *OneRef) {
+	var buf bytes.Buffer
+	fmt.Fprint(&buf, "package protocol\n\n")
+	fmt.Fprintf(&buf, "//%s %s\n", data.Name, data.Des)
+	fmt.Fprintf(&buf, "type %s struct {\n", data.Name)
+	for _, tempfiled := range data.Field {
+		filedconversion(&tempfiled, &buf)
+	}
+	fmt.Fprint(&buf, "}\n\n")
+	file.Write(buf.Bytes())
+}
 func oneconversion(file *os.File, data *OnePacketGet) {
 
 	var buf bytes.Buffer
 	fmt.Fprint(&buf, "package protocol\n\nimport \"github.com/yhhaiua/goserver/common/gpacket\"\n\n")
 	fmt.Fprintf(&buf, "//%s %s\n", data.Name, data.Des)
 	fmt.Fprintf(&buf, "type %s struct {\n	gpacket.BaseCmd\n", data.Name)
+	for _, tempfiled := range data.Field {
+		filedconversion(&tempfiled, &buf)
+	}
 	fmt.Fprint(&buf, "}\n\n")
+	fmt.Fprintf(&buf, "//Init %s初始化\n", data.Name)
+	fmt.Fprintf(&buf, "func (pcmd *%s) Init() {\n   pcmd.Cmd = %s\n	  pcmd.SupCmd = %s\n}", data.Name, data.Cmd, data.Supcmd)
 	file.Write(buf.Bytes())
+}
+
+func filedconversion(field *StField, tempbuf *bytes.Buffer) {
+	switch field.Type {
+	case "ref":
+		fmt.Fprintf(tempbuf, "	%s %s\n", field.Name, field.RefType)
+	case "refArray":
+		fmt.Fprintf(tempbuf, "	%s []%s\n", field.Name, field.RefType)
+	default:
+		fmt.Fprintf(tempbuf, "	%s %s\n", field.Name, field.Type)
+	}
 }
