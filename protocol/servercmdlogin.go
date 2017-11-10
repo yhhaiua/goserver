@@ -8,7 +8,6 @@ type ServerCmdLogin struct {
 	CheckData uint32
 	Svrid     int32
 	Svrtype   int32
-	Now       int32
 }
 
 //Init ServerCmdLogin初始化

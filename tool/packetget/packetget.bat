@@ -1,5 +1,5 @@
 @echo off
 del /q /s "..\..\protocol\*.go"
 packetget.exe
-go fmt
+go fmt ..\..\protocol\
 pause

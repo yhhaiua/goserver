@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<packets package="protocol">
+    <packet cmd="254" supcmd="1" name="ServerCmdLogin" des="服务器间登录包">
+        <field name="Field1" type="uint32"/>
+        <field name="Field2" type="int32"/>
+        <field name="Field3" type="uint64"/>
+        <field name="Field4" type="int64"/>
+        <field name="Field5" type="uint8"/>
+		<field name="Field5" type="int8"/>
+        <field name="Field6" type="string"/>
+		<field name="Field7" type="bool"/>
+		
+        <field name="Field8" type="ref" refType="CFake"/>
+		<field name="Field9" type="refArray" refType="CFake"/>
+		
+		<field name="Field10" type="refArray" refType="uint32"/>
+		<field name="Field11" type="refArray" refType="int32"/>
+		<field name="Field12" type="refArray" refType="uint64"/>
+		<field name="Field13" type="refArray" refType="int64"/>
+		<field name="Field14" type="refArray" refType="uint8"/>
+		<field name="Field14" type="refArray" refType="int8"/>
+		<field name="Field15" type="refArray" refType="string"/>
+		<field name="Field16" type="refArray" refType="bool"/>
+		<field name="Field16" type="refArray" refType="byte"/>
+    </packet>
+	
+    <ref  name="CFake" des="测试结构">
+        <field name="Field1" type="uint32"/>
+    </ref>
+	
+</packets>

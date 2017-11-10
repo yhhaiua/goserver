@@ -1,8 +1,6 @@
 package protocol
 
-import (
-	"github.com/yhhaiua/goserver/common/gpacket"
-)
+import "github.com/yhhaiua/goserver/common/gpacket"
 
 //ServerCmdCon redis间连接
 type ServerCmdCon struct {

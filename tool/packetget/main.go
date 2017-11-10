@@ -7,7 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/yhhaiua/goserver/common/gpacket"
 )
 
 const dir = "../../protocol/"
@@ -46,12 +49,12 @@ type Ref struct {
 }
 
 var myPacketGet PacketGet
-var myRefMap map[string]OneRef
+var myCodeMap map[string]uint16
 var myref Ref
 
 func main() {
 
-	myRefMap = make(map[string]OneRef)
+	myCodeMap = make(map[string]uint16)
 
 	content, err := ioutil.ReadFile("packet.xml")
 	if err != nil {
@@ -84,6 +87,7 @@ func conversionGo() {
 		if err == nil {
 			defer file.Close()
 			oneconversionref(file, &temref)
+
 		}
 	}
 	for _, temppacket := range myPacketGet.Packet {
@@ -94,8 +98,12 @@ func conversionGo() {
 		if err == nil {
 			defer file.Close()
 			oneconversion(file, &temppacket)
+			icmd, _ := strconv.Atoi(temppacket.Cmd)
+			isupcmd, _ := strconv.Atoi(temppacket.Supcmd)
+			myCodeMap[temppacket.Name] = gpacket.GetValue(uint8(icmd), uint8(isupcmd))
 		}
 	}
+	codeconversion()
 }
 
 func oneconversionref(file *os.File, data *OneRef) {
@@ -132,5 +140,21 @@ func filedconversion(field *StField, tempbuf *bytes.Buffer) {
 		fmt.Fprintf(tempbuf, "	%s []%s\n", field.Name, field.RefType)
 	default:
 		fmt.Fprintf(tempbuf, "	%s %s\n", field.Name, field.Type)
+	}
+}
+
+func codeconversion() {
+	filename := dir + "code.go"
+	file, err := os.Create(filename)
+	if err == nil {
+		defer file.Close()
+		var buf bytes.Buffer
+		fmt.Fprint(&buf, "package protocol\n\n")
+		fmt.Fprint(&buf, "//包的key\nconst (\n")
+		for key, value := range myCodeMap {
+			fmt.Fprintf(&buf, "	%sCode = %d\n", key, value)
+		}
+		fmt.Fprint(&buf, ")")
+		file.Write(buf.Bytes())
 	}
 }
