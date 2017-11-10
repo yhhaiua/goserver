@@ -85,9 +85,8 @@ func conversionGo() {
 		filename = dir + filename + ".go"
 		file, err := os.Create(filename)
 		if err == nil {
-			defer file.Close()
 			oneconversionref(file, &temref)
-
+			file.Close()
 		}
 	}
 	for _, temppacket := range myPacketGet.Packet {
@@ -96,11 +95,11 @@ func conversionGo() {
 		filename = dir + filename + ".go"
 		file, err := os.Create(filename)
 		if err == nil {
-			defer file.Close()
 			oneconversion(file, &temppacket)
 			icmd, _ := strconv.Atoi(temppacket.Cmd)
 			isupcmd, _ := strconv.Atoi(temppacket.Supcmd)
 			myCodeMap[temppacket.Name] = gpacket.GetValue(uint8(icmd), uint8(isupcmd))
+			file.Close()
 		}
 	}
 	codeconversion()
