@@ -21,7 +21,6 @@ const (
 )
 const (
 	maxSendbufLen    = 1024 * 4 //一次发送长度
-	initMybufLen     = 2048     //初始化buf长度
 	verificationtime = 30       //连接验证时间
 )
 

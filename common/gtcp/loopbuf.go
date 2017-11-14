@@ -6,6 +6,11 @@ import (
 	"github.com/yhhaiua/goserver/common"
 )
 
+const (
+	initMybufLen = 2048      //初始化buf长度
+	maxMybufLen  = 64 * 1024 //最大buf长度
+)
+
 type loopBuf struct {
 	buf         []byte     //包内容
 	bufsize     int        //buff的最大长度
@@ -96,6 +101,10 @@ func (loop *loopBuf) setReadPtr(nlen int) {
 		loop.canreadlen = 0
 		loop.canwritelen = loop.bufsize
 		loop.freedatalen = 0
+		if loop.bufsize >= maxMybufLen {
+			//缓存过大直接重置
+			loop.newLoopBuf(initMybufLen)
+		}
 		return
 	}
 	loop.readadd += nlen
