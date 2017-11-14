@@ -20,6 +20,7 @@ type StField struct {
 	Name    string `xml:"name,attr"`
 	Type    string `xml:"type,attr"`
 	RefType string `xml:"refType,attr"`
+	Des     string `xml:"des,attr"`
 }
 
 //OnePacketGet 结构
@@ -134,11 +135,11 @@ func oneconversion(file *os.File, data *OnePacketGet) {
 func filedconversion(field *StField, tempbuf *bytes.Buffer) {
 	switch field.Type {
 	case "ref":
-		fmt.Fprintf(tempbuf, "	%s %s\n", field.Name, field.RefType)
+		fmt.Fprintf(tempbuf, "	%s %s //%s\n", field.Name, field.RefType, field.Des)
 	case "refArray":
-		fmt.Fprintf(tempbuf, "	%s []%s\n", field.Name, field.RefType)
+		fmt.Fprintf(tempbuf, "	%s []%s //%s\n", field.Name, field.RefType, field.Des)
 	default:
-		fmt.Fprintf(tempbuf, "	%s %s\n", field.Name, field.Type)
+		fmt.Fprintf(tempbuf, "	%s %s //%s\n", field.Name, field.Type, field.Des)
 	}
 }
 

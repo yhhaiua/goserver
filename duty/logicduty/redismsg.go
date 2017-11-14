@@ -16,7 +16,7 @@ type stRedisMsg struct {
 func (msg *stRedisMsg) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 
 	switch pcmd.Value() {
-	case protocol.ServerCmdConCode:
+	case protocol.RedisCmdConnectCode:
 		msg.boConnection = true
 		glog.Info("login服务器连接成功")
 	default:
@@ -35,7 +35,7 @@ func (msg *stRedisMsg) runSendLogin() {
 }
 
 func (msg *stRedisMsg) sendlogincmd() {
-	var retcmd protocol.ServerCmdCon
+	var retcmd protocol.RedisCmdConnect
 	retcmd.Init()
 	retcmd.IsneedAck = true
 	retcmd.Szchannel = comsvrsrc.SUBCHANNELduty

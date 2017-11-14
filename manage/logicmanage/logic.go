@@ -139,7 +139,7 @@ func (logic *Logicsvr) SendGateCmd(key int64, data interface{}) {
 //SendGameCmd 发送给网关信息
 func (logic *Logicsvr) SendGameCmd(key int64, data interface{}) {
 
-	value, ok := logic.gateMap.Load(key)
+	value, ok := logic.gameMap.Load(key)
 	if ok {
 
 		session, zok := value.(*stGameSession)

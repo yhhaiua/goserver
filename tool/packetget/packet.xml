@@ -2,17 +2,26 @@
 
 <packets package="protocol">
     <packet cmd="254" supcmd="1" name="ServerCmdLogin" des="服务器间登录包">
-        <field name="CheckData" type="uint32"/>
-        <field name="Svrid" type="int32"/>
-        <field name="Svrtype" type="int32"/>
+        <field name="CheckData" type="uint32" des="效验码"/>
+        <field name="Svrid" type="int32" des="服务器id"/>
+        <field name="Svrtype" type="int32" des="服务器类型"/>
     </packet>
 	 <packet cmd="254" supcmd="2" name="ServerCmdHeart" des="服务器间心跳包">
-        <field name="IsneedAck" type="bool"/>
-        <field name="Checknum" type="int8"/>
+        <field name="IsneedAck" type="bool" des="是否需要回包"/>
+        <field name="Checknum" type="int8" des="检测次数"/>
     </packet>
-	<packet cmd="254" supcmd="3" name="ServerCmdCon" des="redis间连接">
-        <field name="IsneedAck" type="bool"/>
-        <field name="Szchannel" type="string"/>
+	<packet cmd="253" supcmd="1" name="RedisCmdConnect" des="redis间连接">
+        <field name="IsneedAck" type="bool" des="是否需要回包"/>
+        <field name="Szchannel" type="string" des="通道名"/>
     </packet>
-	
+	<packet cmd="1" supcmd="1" name="LoginCmdUser" des="玩家登录包（C->S）">
+        <field name="Account" type="string" des="帐号"/>
+        <field name="Name" type="string" des="名字"/>
+		<field name="OnlyID" type="int64" des="玩家id"/>
+		<field name="Paramp" type="string" des="md5加密字符串"/>
+		<field name="Paramt" type="string" des="时间戳"/>
+    </packet>
+	<packet cmd="1" supcmd="2" name="LoginCmdUserRet" des="玩家登录包返回（S->C）">
+        <field name="ErrorCode" type="int32" des="错误码"/>
+    </packet>
 </packets>

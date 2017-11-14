@@ -15,18 +15,18 @@ type stRedisMsg struct {
 func (msg *stRedisMsg) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 
 	switch pcmd.Value() {
-	case protocol.ServerCmdConCode:
+	case protocol.RedisCmdConnectCode:
 		msg.logincmd(data)
 	default:
 	}
 	return true
 }
 func (msg *stRedisMsg) logincmd(data []byte) {
-	var retcmd protocol.ServerCmdCon
+	var retcmd protocol.RedisCmdConnect
 
 	err := Instance().redisdb().Cmdcodec().Decode(data, &retcmd)
 
-	if common.CheckError(err, "ServerCmdCon") {
+	if common.CheckError(err, "RedisCmdConnect") {
 		getchannel := retcmd.Szchannel
 		glog.Infof("连接成功 %s", retcmd.Szchannel)
 		msg.boConnection = true
