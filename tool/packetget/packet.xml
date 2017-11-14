@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <packets package="protocol">
+	<!-- -ServerCmd packets -->
     <packet cmd="254" supcmd="1" name="ServerCmdLogin" des="服务器间登录包">
         <field name="CheckData" type="uint32" des="效验码"/>
         <field name="Svrid" type="int32" des="服务器id"/>
@@ -10,10 +11,12 @@
         <field name="IsneedAck" type="bool" des="是否需要回包"/>
         <field name="Checknum" type="int8" des="检测次数"/>
     </packet>
+	<!-- -RedisCmd packets -->
 	<packet cmd="253" supcmd="1" name="RedisCmdConnect" des="redis间连接">
         <field name="IsneedAck" type="bool" des="是否需要回包"/>
         <field name="Szchannel" type="string" des="通道名"/>
     </packet>
+	<!-- -LoginCmd packets -->
 	<packet cmd="1" supcmd="1" name="LoginCmdUser" des="玩家登录包（C->S）">
         <field name="Account" type="string" des="帐号"/>
         <field name="Name" type="string" des="名字"/>

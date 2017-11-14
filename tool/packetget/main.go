@@ -50,12 +50,15 @@ type Ref struct {
 }
 
 var myPacketGet PacketGet
-var myCodeMap map[string]uint16
+
+//var myCodeMap map[string]uint16
+var myCodeName []string
+var myCodeID []uint16
 var myref Ref
 
 func main() {
 
-	myCodeMap = make(map[string]uint16)
+	//myCodeMap = make(map[string]uint16)
 
 	content, err := ioutil.ReadFile("packet.xml")
 	if err != nil {
@@ -99,7 +102,9 @@ func conversionGo() {
 			oneconversion(file, &temppacket)
 			icmd, _ := strconv.Atoi(temppacket.Cmd)
 			isupcmd, _ := strconv.Atoi(temppacket.Supcmd)
-			myCodeMap[temppacket.Name] = gpacket.GetValue(uint8(icmd), uint8(isupcmd))
+			//myCodeMap[temppacket.Name] = gpacket.GetValue(uint8(icmd), uint8(isupcmd))
+			myCodeName = append(myCodeName, temppacket.Name)
+			myCodeID = append(myCodeID, gpacket.GetValue(uint8(icmd), uint8(isupcmd)))
 			file.Close()
 		}
 	}
@@ -151,8 +156,11 @@ func codeconversion() {
 		var buf bytes.Buffer
 		fmt.Fprint(&buf, "package protocol\n\n")
 		fmt.Fprint(&buf, "//包的key\nconst (\n")
-		for key, value := range myCodeMap {
-			fmt.Fprintf(&buf, "	%sCode = %d\n", key, value)
+		//for key, value := range myCodeMap {
+		//	fmt.Fprintf(&buf, "	%sCode = %d\n", key, value)
+		//}
+		for i, temName := range myCodeName {
+			fmt.Fprintf(&buf, "	%sCode = %d\n", temName, myCodeID[i])
 		}
 		fmt.Fprint(&buf, ")")
 		file.Write(buf.Bytes())
