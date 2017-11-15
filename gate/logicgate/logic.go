@@ -19,7 +19,7 @@ const (
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
 	gameconmap    map[int32]*stGameCon
-	manageconmap  map[int32]*stManageCon
+	manage        *stManageCon
 	playerMap     *sync.Map
 	serverid      int32
 	linkKey       int64
@@ -62,7 +62,6 @@ func (logic *Logicsvr) LogicInit(serverid int) bool {
 func (logic *Logicsvr) allconnect() bool {
 	//连接gs队列
 	logic.gameconmap = make(map[int32]*stGameCon)
-	logic.manageconmap = make(map[int32]*stManageCon)
 	//连接manage
 	success := logic.manageConInit()
 
@@ -74,7 +73,7 @@ func (logic *Logicsvr) manageConInit() bool {
 	con := new(stManageCon)
 	game := &(logic.mstJSONConfig.manageconfing)
 	if con.create(game) {
-		logic.manageconmap[game.serverid] = con
+		logic.manage = con
 	} else {
 		return false
 	}

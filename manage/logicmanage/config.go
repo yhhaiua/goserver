@@ -8,9 +8,8 @@ import (
 )
 
 type stJSONConfig struct {
-	nloglvl   int    //日志等级
-	sgateport string //端口
-	sgameport string //端口
+	nloglvl int    //日志等级
+	sport   string //端口
 }
 
 func (Config *stJSONConfig) configInit(serverid int) bool {
@@ -40,8 +39,7 @@ func (Config *stJSONConfig) configInit(serverid int) bool {
 		if data.IsValid() {
 
 			Config.nloglvl = data.Getint("loglvl")
-			Config.sgateport = data.Getstring("gateport")
-			Config.sgameport = data.Getstring("gameport")
+			Config.sport = data.Getstring("port")
 		} else {
 			glog.Errorf("Failed to config file '%s'", path)
 			return false

@@ -17,7 +17,7 @@ type stGateSession struct {
 
 //create 创建连接
 func (session *stGateSession) create(con *net.TCPConn, linkKey int64) bool {
-	session.ServerSession = gtcp.AddSession(con, linkKey, "gate服务器")
+	session.ServerSession = gtcp.AddSession(con, linkKey, "allserver服务器")
 
 	if session.ServerSession != nil {
 		session.SetFunc(session.putMsgQueue, session.delCloseLink)
@@ -67,7 +67,7 @@ func (session *stGateSession) loginCmd(data []byte) bool {
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		session.SetValid(true)
 		session.sendOnceCmd()
-		glog.Infof("gate %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
+		glog.Infof("服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
 		return true
 	}
 	return false

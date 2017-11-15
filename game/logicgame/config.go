@@ -63,7 +63,7 @@ func (Config *stJSONConfig) configInit(serverid int) bool {
 			data := gjson.NewGetindex(keydata, i)
 			if data.IsValid() {
 				Config.manageconfing.sip = data.Getstring("ip")
-				Config.manageconfing.sport = data.Getstring("gameport")
+				Config.manageconfing.sport = data.Getstring("port")
 				Config.manageconfing.serverid = data.Getint32("id")
 			} else {
 				glog.Errorf("manage Failed to config file '%s'", path)

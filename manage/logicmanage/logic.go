@@ -20,7 +20,6 @@ const (
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
 	gateMap       *sync.Map
-	gameMap       *sync.Map
 	serverid      int32
 	linkKey       int64
 }
@@ -69,12 +68,10 @@ func (logic *Logicsvr) allconnect() bool {
 func (logic *Logicsvr) allListen() bool {
 
 	logic.gateMap = new(sync.Map)
-	logic.gameMap = new(sync.Map)
 
-	successgate := gtcp.AddListen("0.0.0.0", logic.config().sgateport, callbackGate, logic.ListenCallback)
-	successgame := gtcp.AddListen("0.0.0.0", logic.config().sgameport, callbackGame, logic.ListenCallback)
+	successgate := gtcp.AddListen("0.0.0.0", logic.config().sport, callbackGate, logic.ListenCallback)
 
-	return successgate && successgame
+	return successgate
 }
 
 func (logic *Logicsvr) getLinkKey() int64 {
@@ -86,8 +83,6 @@ func (logic *Logicsvr) ListenCallback(con *net.TCPConn, backtype int32) {
 	switch backtype {
 	case callbackGate:
 		logic.gateSessionInit(con)
-	case callbackGame:
-		logic.gameSessionInit(con)
 	default:
 	}
 }
@@ -102,24 +97,13 @@ func (logic *Logicsvr) gateSessionInit(con *net.TCPConn) {
 		logic.gateMap.Store(key, session)
 	}
 }
-func (logic *Logicsvr) gameSessionInit(con *net.TCPConn) {
-	session := new(stGameSession)
 
-	key := logic.getLinkKey()
-
-	if session.create(con, key) {
-		logic.gameMap.Store(key, session)
-	}
-}
 func (logic *Logicsvr) config() *stJSONConfig {
 	return &logic.mstJSONConfig
 }
 
 func (logic *Logicsvr) syncgateMap() *sync.Map {
 	return logic.gateMap
-}
-func (logic *Logicsvr) syncgameMap() *sync.Map {
-	return logic.gameMap
 }
 
 //SendGateCmd 发送给网关信息
@@ -129,20 +113,6 @@ func (logic *Logicsvr) SendGateCmd(key int64, data interface{}) {
 	if ok {
 
 		session, zok := value.(*stGateSession)
-		if zok {
-			session.SendCmd(data)
-		}
-	}
-
-}
-
-//SendGameCmd 发送给网关信息
-func (logic *Logicsvr) SendGameCmd(key int64, data interface{}) {
-
-	value, ok := logic.gameMap.Load(key)
-	if ok {
-
-		session, zok := value.(*stGameSession)
 		if zok {
 			session.SendCmd(data)
 		}
