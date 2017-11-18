@@ -61,6 +61,8 @@ func (con *stManageCon) SendOnceCmd() {
 	retcmd.CheckData = comsvrsrc.CHECKDATACODE
 	retcmd.Svrid = Instance().serverid
 	retcmd.Svrtype = SERVERTYPE
+	retcmd.Sip = Instance().config().sip
+	retcmd.Sport = Instance().config().sport
 
 	con.SendCmd(&retcmd)
 }
@@ -73,7 +75,7 @@ func (con *stManageCon) loginCmd(data []byte) bool {
 
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		con.SetValid(true)
-		glog.Infof("manage服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
+		glog.Infof("manage服务器 %d-%d 连接效验成功ip:[%s],port:[%s]", retcmd.Svrid, retcmd.Svrtype, retcmd.Sip, retcmd.Sport)
 		return true
 	}
 	return false

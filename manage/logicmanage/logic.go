@@ -5,6 +5,8 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/yhhaiua/goserver/common/gpacket"
+
 	"github.com/yhhaiua/goserver/common/gtcp"
 	"github.com/yhhaiua/goserver/comsvrsrc"
 )
@@ -16,12 +18,19 @@ const (
 	callbackGame = 10001
 )
 
+//PackBaseInfo 内部通讯包
+type PackBaseInfo struct {
+	*gpacket.BaseCmd
+	data interface{}
+}
+
 //Logicsvr 服务器数据
 type Logicsvr struct {
 	mstJSONConfig stJSONConfig
 	gateMap       *sync.Map
 	serverid      int32
 	linkKey       int64
+	Infolist      chan PackBaseInfo
 }
 
 var (
@@ -47,7 +56,7 @@ func (logic *Logicsvr) LogicInit(serverid int) bool {
 	//读取配置
 	logic.serverid = int32(serverid)
 	if logic.mstJSONConfig.configInit(serverid) {
-
+		logic.Infolist = make(chan PackBaseInfo, 10)
 		//连接与监听
 		if logic.allconnect() && logic.allListen() {
 

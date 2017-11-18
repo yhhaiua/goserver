@@ -6,10 +6,15 @@
         <field name="CheckData" type="uint32" des="效验码"/>
         <field name="Svrid" type="int32" des="服务器id"/>
         <field name="Svrtype" type="int32" des="服务器类型"/>
+		<field name="Sip" type="string" des="服务器ip"/>
+		<field name="Sport" type="string" des="服务器端口"/>
     </packet>
 	 <packet cmd="254" supcmd="2" name="ServerCmdHeart" des="服务器间心跳包">
         <field name="IsneedAck" type="bool" des="是否需要回包"/>
         <field name="Checknum" type="int8" des="检测次数"/>
+    </packet>
+	 <packet cmd="254" supcmd="3" name="ServerCmdConData" des="服务器间连接数据包">
+        <field name="ConDataInfo" type="refArray" refType="RefConDataInfo" des="连接数据"/>
     </packet>
 	<!-- -RedisCmd packets -->
 	<packet cmd="253" supcmd="1" name="RedisCmdConnect" des="redis间连接">
@@ -27,4 +32,12 @@
 	<packet cmd="1" supcmd="2" name="LoginCmdUserRet" des="玩家登录包返回（S->C）">
         <field name="ErrorCode" type="int32" des="错误码"/>
     </packet>
+	
+	<ref  name="RefConDataInfo" des="连接数据结构">
+        <field name="Svrid" type="int32" des="服务器id"/>
+        <field name="Svrtype" type="int32" des="服务器类型"/>
+		<field name="Sip" type="string" des="服务器ip"/>
+		<field name="Sport" type="string" des="服务器端口"/>
+    </ref>
+	
 </packets>

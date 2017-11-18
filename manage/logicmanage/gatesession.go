@@ -65,6 +65,8 @@ func (session *stGateSession) sendOnceCmd() {
 	retcmd.CheckData = comsvrsrc.CHECKDATACODE
 	retcmd.Svrid = Instance().serverid
 	retcmd.Svrtype = SERVERTYPE
+	retcmd.Sip = Instance().config().sip
+	retcmd.Sport = Instance().config().sport
 
 	session.SendCmd(&retcmd)
 }
@@ -78,7 +80,7 @@ func (session *stGateSession) loginCmd(data []byte) bool {
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		session.SetValid(true)
 		session.sendOnceCmd()
-		glog.Infof("服务器 %d-%d 连接效验成功", retcmd.Svrid, retcmd.Svrtype)
+		glog.Infof("服务器 %d-%d 连接效验成功ip:[%s],port:[%s]", retcmd.Svrid, retcmd.Svrtype, retcmd.Sip, retcmd.Sport)
 		return true
 	}
 	return false

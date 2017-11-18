@@ -14,6 +14,7 @@ type stManageConfig struct {
 }
 type stJSONConfig struct {
 	nloglvl       int    //日志等级
+	sip           string //ip
 	sport         string //端口
 	manageconfing stManageConfig
 }
@@ -45,6 +46,7 @@ func (Config *stJSONConfig) configInit(serverid int) bool {
 		if data.IsValid() {
 
 			Config.nloglvl = data.Getint("loglvl")
+			Config.sip = data.Getstring("ip")
 			Config.sport = data.Getstring("port")
 		} else {
 			glog.Errorf("Failed to config file '%s'", path)

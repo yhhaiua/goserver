@@ -8,6 +8,8 @@ type ServerCmdLogin struct {
 	CheckData uint32 //效验码
 	Svrid     int32  //服务器id
 	Svrtype   int32  //服务器类型
+	Sip       string //服务器ip
+	Sport     string //服务器端口
 }
 
 //Init ServerCmdLogin初始化

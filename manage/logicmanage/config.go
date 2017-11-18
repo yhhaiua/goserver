@@ -9,6 +9,7 @@ import (
 
 type stJSONConfig struct {
 	nloglvl int    //日志等级
+	sip     string //ip
 	sport   string //端口
 }
 
@@ -40,6 +41,7 @@ func (Config *stJSONConfig) configInit(serverid int) bool {
 
 			Config.nloglvl = data.Getint("loglvl")
 			Config.sport = data.Getstring("port")
+			Config.sip = data.Getstring("ip")
 		} else {
 			glog.Errorf("Failed to config file '%s'", path)
 			return false
