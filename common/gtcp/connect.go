@@ -3,10 +3,9 @@ package gtcp
 import (
 	"net"
 
-	"github.com/yhhaiua/goserver/common"
+	"github.com/yhhaiua/goserver/common/ginter"
 
 	"github.com/yhhaiua/goserver/common/glog"
-	"github.com/yhhaiua/goserver/common/gpacket"
 )
 
 //ClientConnecter 请求连接结构
@@ -14,17 +13,17 @@ type ClientConnecter struct {
 	*baseSession
 	myTCPAddr  *net.TCPAddr
 	nServerID  int32
-	sendOnce   func()
-	clientMsg  func(pcmd *gpacket.BaseCmd, data []byte) bool
 	clientname string
+	agent      ginter.ConnectAgenter
 }
 
 //AddConnect 添加请求信息
-func AddConnect(serverip, port string, serverid int32, servername string) *ClientConnecter {
+func AddConnect(serverip, port string, serverid int32, servername string, agent ginter.ConnectAgenter) *ClientConnecter {
 	Connecter := new(ClientConnecter)
 	connectadd := serverip + ":" + port
 	Connecter.nServerID = serverid
 	Connecter.clientname = servername
+	Connecter.agent = agent
 	var err error
 	Connecter.myTCPAddr, err = net.ResolveTCPAddr("tcp", connectadd)
 	if err != nil {
@@ -53,7 +52,7 @@ func (connect *ClientConnecter) startconnect() bool {
 		} else {
 			connect.baseInit(conn)
 			connect.start()
-			connect.sendOnce()
+			connect.agent.SendOnceCmd()
 			return true
 		}
 	}
@@ -62,20 +61,7 @@ func (connect *ClientConnecter) startconnect() bool {
 
 func (connect *ClientConnecter) baseInit(conn *net.TCPConn) {
 	//baseSession结构中的参数初始化
-	connect.baseSession = addbase(conn, int64(connect.nServerID), connect.clientname)
-	connect.newcodec(newcodecBinary)
-	connect.msgQueue = connect.clientMsg
-}
-
-//Cmdcodec 包解析
-func (connect *ClientConnecter) Cmdcodec() common.CmdCodec {
-	return connect.cmdcodec
-}
-
-//SetFunc 发送验证包的函数、读取数据包的函数
-func (connect *ClientConnecter) SetFunc(Queue func(pcmd *gpacket.BaseCmd, data []byte) bool, Once func()) {
-	connect.clientMsg = Queue
-	connect.sendOnce = Once
+	connect.baseSession = addbase(conn, int64(connect.nServerID), connect.clientname, connectbaseType, connect.agent)
 }
 
 //SetValid 设置是否为激活状态

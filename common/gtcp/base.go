@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/yhhaiua/goserver/common/ginter"
+
 	"github.com/yhhaiua/goserver/protocol"
 
 	"github.com/yhhaiua/goserver/common"
@@ -16,6 +18,10 @@ import (
 	"github.com/yhhaiua/goserver/common/gpacket"
 )
 
+const (
+	connectbaseType = 1
+	sessionbaseType = 2
+)
 const (
 	newcodecBinary = 1
 )
@@ -46,37 +52,32 @@ func (myheart *heartbeat) myInit() {
 //BaseSession 连接结构
 type baseSession struct {
 	servertag   int64
+	nType       int
 	bovalid     bool
 	boConnected bool
 	boRecon     bool
 	conn        *net.TCPConn
 	mrecvMybuf  loopBuf
 	sendMybuf   loopBuf
-	msgQueue    func(pcmd *gpacket.BaseCmd, data []byte) bool
 	cmdcodec    common.CmdCodec
 	sname       string
 	starttime   int64
-	delLink     func(servertag int64)
 	endSync     sync.WaitGroup
 	myHeart     heartbeat
-	myHeartFunc func()
+	network     ginter.NetWorkAgenter
 }
 
-func addbase(conn *net.TCPConn, servertag int64, sname string) *baseSession {
+func addbase(conn *net.TCPConn, servertag int64, sname string, ntype int, network ginter.NetWorkAgenter) *baseSession {
 	Session := new(baseSession)
 	Session.conn = conn
 	Session.servertag = servertag
 	Session.sname = sname
+	Session.nType = ntype
+	Session.network = network
 	Session.sendMybuf.initSendBuf()
 	Session.myHeart.myInit()
+	Session.cmdcodec = network.CmdCodec()
 	return Session
-}
-func (connect *baseSession) newcodec(codectype int) {
-	switch codectype {
-	case newcodecBinary:
-		connect.cmdcodec = new(common.BinaryCodec)
-	default:
-	}
 }
 
 //start 开始连接
@@ -88,6 +89,10 @@ func (connect *baseSession) start() {
 
 	go connect.runRead()
 	go connect.runWrite()
+
+	if connect.nType == sessionbaseType {
+		mCheckSessionMap.Put(connect)
+	}
 }
 func (connect *baseSession) waitClose() {
 	connect.endSync.Wait()
@@ -121,9 +126,11 @@ func (connect *baseSession) doClose() {
 	connect.bovalid = false
 	connect.boRecon = true
 	glog.Infof("连接关闭%s,%d", connect.sname, connect.servertag)
-	if connect.delLink != nil {
-		connect.delLink(connect.servertag)
+	if connect.nType == sessionbaseType {
+		mCheckSessionMap.Del(connect.servertag)
 	}
+	connect.network.CloseLink(connect.servertag)
+
 }
 
 func (connect *baseSession) close() {
@@ -138,8 +145,8 @@ func (connect *baseSession) doInit() {
 	connect.mrecvMybuf.newLoopBuf(initMybufLen)
 	connect.sendMybuf.newLoopBuf(initMybufLen)
 	connect.boConnected = true
-	connect.boRecon = false
 	connect.starttime = time.Now().Unix()
+	connect.network.StartLink(connect.servertag)
 }
 
 func (connect *baseSession) doRead() bool {
@@ -166,7 +173,7 @@ func (connect *baseSession) doRead() bool {
 			if connect.mrecvMybuf.canreadlen >= newlen {
 
 				//包处理
-				if connect.msgQueue(&packet.Pcmd, tembuf[6:packet.Size+6]) {
+				if connect.network.MsgQueue(&packet.Pcmd, tembuf[6:packet.Size+6]) {
 					connect.mrecvMybuf.setReadPtr(newlen)
 				} else {
 					return false
@@ -268,12 +275,8 @@ func (connect *baseSession) runCheck() {
 				connect.close()
 			}
 		} else {
-			if connect.myHeartFunc != nil {
-				connect.myHeartFunc()
-			} else {
-				//统一的心跳函数
-				connect.heartbeatCheck()
-			}
+			//统一的心跳函数
+			connect.heartbeatCheck()
 
 		}
 	}
@@ -306,12 +309,10 @@ func (connect *baseSession) Setheartbeat(pcmd *protocol.ServerCmdHeart) {
 		pcmd.IsneedAck = false
 		connect.sendCmd(pcmd)
 	}
-	if connect.myHeartFunc == nil {
 
-		nowtime := time.Now().Unix()
-		connect.myHeart.checklock.Lock()
-		connect.myHeart.checkstatus = checkstatusNo
-		connect.myHeart.checktime = nowtime + int64(connect.myHeart.checkTimeStart)
-		connect.myHeart.checklock.Unlock()
-	}
+	nowtime := time.Now().Unix()
+	connect.myHeart.checklock.Lock()
+	connect.myHeart.checkstatus = checkstatusNo
+	connect.myHeart.checktime = nowtime + int64(connect.myHeart.checkTimeStart)
+	connect.myHeart.checklock.Unlock()
 }

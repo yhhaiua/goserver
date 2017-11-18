@@ -2,6 +2,7 @@ package logicgate
 
 import (
 	"github.com/yhhaiua/goserver/common"
+	"github.com/yhhaiua/goserver/common/ginter"
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gpacket"
 	"github.com/yhhaiua/goserver/common/gtcp"
@@ -10,23 +11,23 @@ import (
 )
 
 type stGameCon struct {
-	*gtcp.ClientConnecter
+	ginter.NetWorker
+	codec common.BinaryCodec
 }
 
 //create 创建连接
 func (con *stGameCon) create(sip, sport string, serverid int32) bool {
-	con.ClientConnecter = gtcp.AddConnect(sip, sport, serverid, "game服务器")
+	con.NetWorker = gtcp.AddConnect(sip, sport, serverid, "game服务器", con)
 
-	if con.ClientConnecter != nil {
-		con.SetFunc(con.putMsgQueue, con.sendOnceCmd)
+	if con.NetWorker != nil {
 		con.Start()
 		return true
 	}
 	return false
 }
 
-//putMsgQueue 消息队列
-func (con *stGameCon) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
+//MsgQueue 消息队列
+func (con *stGameCon) MsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
 	case protocol.ServerCmdLoginCode:
 		return con.loginCmd(data)
@@ -37,8 +38,23 @@ func (con *stGameCon) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 	return true
 }
 
-//sendOnceCmd 连接发送验证包
-func (con *stGameCon) sendOnceCmd() {
+//CloseLink 关闭回调
+func (con *stGameCon) CloseLink(servertag int64) {
+
+}
+
+//StartLink 启动回调
+func (con *stGameCon) StartLink(servertag int64) {
+
+}
+
+//CmdCodec 解析函数
+func (con *stGameCon) CmdCodec() common.CmdCodec {
+	return &con.codec
+}
+
+//SendOnceCmd 连接发送验证包
+func (con *stGameCon) SendOnceCmd() {
 	var retcmd protocol.ServerCmdLogin
 	retcmd.Init()
 
@@ -53,7 +69,7 @@ func (con *stGameCon) sendOnceCmd() {
 func (con *stGameCon) loginCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdLogin
 
-	err := con.Cmdcodec().Decode(data, &retcmd)
+	err := con.CmdCodec().Decode(data, &retcmd)
 
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		con.SetValid(true)
@@ -67,7 +83,7 @@ func (con *stGameCon) loginCmd(data []byte) bool {
 func (con *stGameCon) heartCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdHeart
 
-	err := con.Cmdcodec().Decode(data, &retcmd)
+	err := con.CmdCodec().Decode(data, &retcmd)
 
 	if common.CheckError(err, "ServerCmdHeart") {
 		con.Setheartbeat(&retcmd)

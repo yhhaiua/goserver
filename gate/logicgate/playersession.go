@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/yhhaiua/goserver/common"
+	"github.com/yhhaiua/goserver/common/ginter"
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gpacket"
 	"github.com/yhhaiua/goserver/common/gtcp"
@@ -12,23 +13,23 @@ import (
 )
 
 type stPlayerSession struct {
-	*gtcp.ServerSession
+	ginter.NetWorker
+	codec common.BinaryCodec
 }
 
 //create 创建连接
 func (session *stPlayerSession) create(con *net.TCPConn, linkKey int64) bool {
-	session.ServerSession = gtcp.AddSession(con, linkKey, "playersession")
+	session.NetWorker = gtcp.AddSession(con, linkKey, "playersession", session)
 
-	if session.ServerSession != nil {
-		session.SetFunc(session.putMsgQueue, session.delCloseLink)
+	if session.NetWorker != nil {
 		session.Start()
 		return true
 	}
 	return false
 }
 
-//putMsgQueue 消息队列
-func (session *stPlayerSession) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
+//MsgQueue 消息队列
+func (session *stPlayerSession) MsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
 	case protocol.ServerCmdLoginCode:
 		return session.loginCmd(data)
@@ -37,18 +38,28 @@ func (session *stPlayerSession) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) 
 	return true
 }
 
-//delCloseLink 断开连接回调
-func (session *stPlayerSession) delCloseLink(servertag int64) {
+//CloseLink 断开连接回调
+func (session *stPlayerSession) CloseLink(servertag int64) {
 
 	Instance().syncMap().Delete(servertag)
 
+}
+
+//StartLink 启动回调
+func (session *stPlayerSession) StartLink(servertag int64) {
+
+}
+
+//CmdCodec 解析函数
+func (session *stPlayerSession) CmdCodec() common.CmdCodec {
+	return &session.codec
 }
 
 //loginCmd 收到验证包
 func (session *stPlayerSession) loginCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdLogin
 
-	err := session.Cmdcodec().Decode(data, &retcmd)
+	err := session.CmdCodec().Decode(data, &retcmd)
 
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		session.SetValid(true)

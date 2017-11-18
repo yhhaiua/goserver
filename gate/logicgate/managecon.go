@@ -2,6 +2,7 @@ package logicgate
 
 import (
 	"github.com/yhhaiua/goserver/common"
+	"github.com/yhhaiua/goserver/common/ginter"
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gpacket"
 	"github.com/yhhaiua/goserver/common/gtcp"
@@ -10,23 +11,23 @@ import (
 )
 
 type stManageCon struct {
-	*gtcp.ClientConnecter
+	ginter.NetWorker
+	codec common.BinaryCodec
 }
 
 //create 创建连接
 func (con *stManageCon) create(game *stManageConfig) bool {
-	con.ClientConnecter = gtcp.AddConnect(game.sip, game.sport, game.serverid, "manage务器")
+	con.NetWorker = gtcp.AddConnect(game.sip, game.sport, game.serverid, "manage务器", con)
 
-	if con.ClientConnecter != nil {
-		con.SetFunc(con.putMsgQueue, con.sendOnceCmd)
+	if con.NetWorker != nil {
 		con.Start()
 		return true
 	}
 	return false
 }
 
-//putMsgQueue 消息队列
-func (con *stManageCon) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
+//MsgQueue 消息队列
+func (con *stManageCon) MsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 	switch pcmd.Value() {
 	case protocol.ServerCmdLoginCode:
 		return con.loginCmd(data)
@@ -37,8 +38,23 @@ func (con *stManageCon) putMsgQueue(pcmd *gpacket.BaseCmd, data []byte) bool {
 	return true
 }
 
-//sendOnceCmd 连接发送验证包
-func (con *stManageCon) sendOnceCmd() {
+//CloseLink 关闭回调
+func (con *stManageCon) CloseLink(servertag int64) {
+
+}
+
+//StartLink 启动回调
+func (con *stManageCon) StartLink(servertag int64) {
+
+}
+
+//CmdCodec 解析函数
+func (con *stManageCon) CmdCodec() common.CmdCodec {
+	return &con.codec
+}
+
+//SendOnceCmd 连接发送验证包
+func (con *stManageCon) SendOnceCmd() {
 	var retcmd protocol.ServerCmdLogin
 	retcmd.Init()
 
@@ -53,7 +69,7 @@ func (con *stManageCon) sendOnceCmd() {
 func (con *stManageCon) loginCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdLogin
 
-	err := con.Cmdcodec().Decode(data, &retcmd)
+	err := con.CmdCodec().Decode(data, &retcmd)
 
 	if common.CheckError(err, "ServerCmdLogin") && retcmd.CheckData == comsvrsrc.CHECKDATACODE {
 		con.SetValid(true)
@@ -67,7 +83,7 @@ func (con *stManageCon) loginCmd(data []byte) bool {
 func (con *stManageCon) heartCmd(data []byte) bool {
 	var retcmd protocol.ServerCmdHeart
 
-	err := con.Cmdcodec().Decode(data, &retcmd)
+	err := con.CmdCodec().Decode(data, &retcmd)
 
 	if common.CheckError(err, "ServerCmdHeart") {
 		con.Setheartbeat(&retcmd)

@@ -54,7 +54,7 @@ type stCheckSession struct {
 }
 
 //Put 向队列中压人新的请求
-func (m *stCheckSession) Put(clent *ServerSession) {
+func (m *stCheckSession) Put(clent *baseSession) {
 	m.mymap.Store(clent.servertag, clent)
 }
 func (m *stCheckSession) Del(servertag int64) {
@@ -72,11 +72,9 @@ func (m *stCheckSession) Run() {
 }
 
 func (m *stCheckSession) runCheck(key, value interface{}) bool {
-	connect, zok := value.(*ServerSession)
+	connect, zok := value.(*baseSession)
 	if zok {
-		if connect.baseSession != nil {
-			connect.runCheck()
-		}
+		connect.runCheck()
 		return true
 	}
 	return false

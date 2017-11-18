@@ -131,7 +131,7 @@ func (j *Js) get(key string) interface{} {
 func (j *Js) getlist(i int) interface{} {
 
 	if m, ok := (j.mdata).([]interface{}); ok {
-		if i < len(m) {
+		if i > 0 && i < len(m) {
 			return m[i]
 		}
 	}
