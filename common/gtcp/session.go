@@ -15,7 +15,7 @@ type ServerSession struct {
 //AddSession 添加请求信息
 func AddSession(conn *net.TCPConn, backtype int64, sname string, agent ginter.SessionAgenter) *ServerSession {
 	Session := new(ServerSession)
-	Session.baseSession = addbase(conn, backtype, sname, connectbaseType, agent)
+	Session.baseSession = addbase(conn, backtype, sname, sessionbaseType, agent)
 
 	glog.Infof("有新的连接进入 %s,%d", sname, backtype)
 	return Session

@@ -20,8 +20,9 @@ const (
 
 //PackBaseInfo 内部通讯包
 type PackBaseInfo struct {
+	KeyLink int64
 	*gpacket.BaseCmd
-	data interface{}
+	Data interface{}
 }
 
 //Logicsvr 服务器数据
@@ -127,4 +128,11 @@ func (logic *Logicsvr) SendGateCmd(key int64, data interface{}) {
 		}
 	}
 
+}
+func (logic *Logicsvr) putMsgList(keyLink int64, pcmd *gpacket.BaseCmd, data interface{}) {
+	var info PackBaseInfo
+	info.KeyLink = keyLink
+	info.BaseCmd = pcmd
+	info.Data = data
+	logic.Infolist <- info
 }

@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/yhhaiua/goserver/manage/logicmanage/conmanager"
+
 	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/manage/logicmanage"
 )
@@ -29,6 +31,7 @@ func main() {
 
 		logicmanage.Instance().LogicInit(svrid)
 
+		conmanager.Instance().Init()
 		select {}
 	}
 	glog.Flush()

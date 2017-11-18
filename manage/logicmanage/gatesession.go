@@ -14,13 +14,14 @@ import (
 
 type stGateSession struct {
 	ginter.NetWorker
-	codec common.BinaryCodec
+	codec   common.BinaryCodec
+	linkKey int64
 }
 
 //create 创建连接
 func (session *stGateSession) create(con *net.TCPConn, linkKey int64) bool {
 	session.NetWorker = gtcp.AddSession(con, linkKey, "allserver服务器", session)
-
+	session.linkKey = linkKey
 	if session.NetWorker != nil {
 		session.Start()
 		return true
@@ -81,6 +82,7 @@ func (session *stGateSession) loginCmd(data []byte) bool {
 		session.SetValid(true)
 		session.sendOnceCmd()
 		glog.Infof("服务器 %d-%d 连接效验成功ip:[%s],port:[%s]", retcmd.Svrid, retcmd.Svrtype, retcmd.Sip, retcmd.Sport)
+		Instance().putMsgList(session.linkKey, &retcmd.BaseCmd, &retcmd)
 		return true
 	}
 	return false

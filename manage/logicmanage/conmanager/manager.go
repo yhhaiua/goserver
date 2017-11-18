@@ -3,6 +3,7 @@ package conmanager
 import "sync"
 import "github.com/yhhaiua/goserver/protocol"
 import "github.com/yhhaiua/goserver/manage/logicmanage"
+import "github.com/yhhaiua/goserver/common/glog"
 
 type stConnectInfo struct {
 	nsvrtype int32
@@ -38,6 +39,7 @@ func Instance() *ConManager {
 func (manager *ConManager) Init() {
 	manager.manageConfig.configInit()
 	manager.svrMap = make(map[int32]stConnectInfo)
+	go manager.thenpackage()
 }
 
 func (manager *ConManager) thenpackage() {
@@ -49,7 +51,9 @@ func (manager *ConManager) thenpackage() {
 }
 func (manager *ConManager) putMsgQueue(pcmd *logicmanage.PackBaseInfo) {
 	switch pcmd.Value() {
-
+	case protocol.ServerCmdLoginCode:
+		data := pcmd.Data.(*protocol.ServerCmdLogin)
+		manager.connectadd(data.Svrid, data.Svrtype, data.Sip, data.Sport, pcmd.KeyLink)
 	}
 }
 func (manager *ConManager) connectadd(nsvrid, nsvrtype int32, sip, sport string, keylink int64) {
@@ -60,7 +64,7 @@ func (manager *ConManager) connectadd(nsvrid, nsvrtype int32, sip, sport string,
 	info.sport = sport
 	info.keylink = keylink
 	manager.svrMap[nsvrid] = info
-
+	glog.Infof("记录成功 id:[%d],type:[%d],ip:[%s],port:[%s],key:[%d]", nsvrid, nsvrtype, sip, sport, keylink)
 	value, ok := manager.manageConfig.ContypeMap[nsvrtype]
 	if ok {
 		//是连接方，需要监听方的所有ip端口
