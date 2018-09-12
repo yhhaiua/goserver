@@ -32,7 +32,7 @@ func getPlatformZone() {
 	clusterinfo.Set("pname", "7cool")
 	clusterinfo.Set("version", "1.0.0")
 
-	urldata := "http://172.16.3.73:8001/public/getPlatformZone"
+	urldata := "http://127.0.0.1:19003/public/getPlatformZone"
 
 	req, err := http.PostForm(urldata, clusterinfo)
 	if err == nil {
@@ -64,7 +64,7 @@ func regAccount(account string) {
 	clusterinfo.Set("account", account)
 	clusterinfo.Set("serverid", "1")
 
-	urldata := "http://172.16.3.73:8001/public/regAccount"
+	urldata := "http://127.0.0.1:19003/public/regAccount"
 
 	req, err := http.PostForm(urldata, clusterinfo)
 	if err == nil {
