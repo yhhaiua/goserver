@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 )
+
 func main() {
 
 	var clusterinfo = url.Values{}
@@ -19,10 +20,10 @@ func main() {
 		panic(err)
 
 	}
-	 	body, err := ioutil.ReadAll(res.Body)
-	 	if err == nil {
-	 		fmt.Println(string(body))
-	 	}
+	body, err := ioutil.ReadAll(res.Body)
+	if err == nil {
+		fmt.Println(string(body))
+	}
 	// req, err := http.PostForm(urldata, clusterinfo)
 	// if err == nil {
 

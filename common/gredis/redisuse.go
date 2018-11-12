@@ -11,6 +11,7 @@ type RedisConfig struct {
 	Shostport string //ipport
 	Maxopen   int    //最大连接数
 	Maxidle   int    //最大空闲数
+	Password string	 //密码
 }
 
 // RedisPool Redis连接结构
@@ -18,6 +19,7 @@ type RedisPool struct {
 	p        *redis.Pool // redis connection pool
 	conninfo string
 	dbNum    int
+	password string
 }
 
 func newRedis() *RedisPool {
@@ -162,6 +164,7 @@ func (rc *RedisPool) start(config *RedisConfig) error {
 
 	rc.conninfo = config.Shostport
 	rc.dbNum = 0
+	rc.password = config.Password
 
 	rc.connectInit(config)
 
@@ -177,7 +180,12 @@ func (rc *RedisPool) connectInit(config *RedisConfig) {
 		if err != nil {
 			return nil, err
 		}
-
+		if rc.password != ""{
+			if _, passerr := c.Do("AUTH", rc.password); passerr != nil {
+				c.Close()
+				return nil, passerr
+			}
+		}
 		_, selecterr := c.Do("SELECT", rc.dbNum)
 		if selecterr != nil {
 			c.Close()

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?><def>
+  <config>
+    <!-- 主键-->
+    <field define="id" field="id"/>
+    <!-- 类型：0-首充折扣类型。1.普通2.每日额外赠送3.活动期间赠送4月卡5.一元购-->
+    <field define="type" field="type"/>
+    <!-- 2/3类型使用 购买次数-->
+    <field define="count" field="count"/>
+    <!-- 充值金额-->
+    <field define="money" field="money"/>
+    <!-- 奖励内容-->
+    <field define="reward" field="reward"/>
+    <!-- 3类型使用活动区间-->
+    <field define="time" field="time"/>
+    <!-- 物品id-->
+    <field define="item" field="item" enum="develop.game.common.convertor.BonusConvertor"/>
+  </config>
+  <unit id="1" type="4" money="30" reward="0"/>
+  <unit id="2" type="3" count="1" money="88" reward="800" time="2018-07-11 0:00:00,2018-07-20 23:59:59"/>
+  <unit id="3" type="0" money="3" reward="60"/>
+  <unit id="4" type="0" money="9" reward="180"/>
+  <unit id="5" type="0" money="19" reward="380"/>
+  <unit id="6" type="0" money="49" reward="980"/>
+  <unit id="7" type="0" money="94" reward="1880"/>
+  <unit id="8" type="0" money="144" reward="2880"/>
+  <unit id="9" type="0" money="344" reward="6880"/>
+  <unit id="10" type="2" count="1" money="10" reward="100"/>
+  <unit id="11" type="1" money="6" reward="60"/>
+  <unit id="12" type="1" money="18" reward="180"/>
+  <unit id="13" type="1" money="38" reward="380"/>
+  <unit id="14" type="1" money="98" reward="980"/>
+  <unit id="15" type="1" money="188" reward="1880"/>
+  <unit id="16" type="1" money="288" reward="2880"/>
+  <unit id="17" type="1" money="688" reward="6880"/>
+  <unit id="18" type="5" money="1" time="14400" item="1000007:10"/>
+</def>

@@ -266,15 +266,15 @@ func (mydata *stMysqlRead) onlyidDataRead() {
 
 func (mydata *stMysqlRead) accountDataRead() {
 
-	maplen := len(mydata.zonedataMap)
-	if maplen > 0 {
-		mydata.endSync.Add(maplen)
-	}
-	for mapkey := range mydata.zonedataMap {
-
-		tablename := cAccountData + mapkey
-
-		Instance().mysqldb().SavetoRedis(Instance().redisdb(), tablename, &mydata.endSync)
-	}
-	mydata.endSync.Wait()
+	//maplen := len(mydata.zonedataMap)
+	//if maplen > 0 {
+	//	mydata.endSync.Add(maplen)
+	//}
+	//for mapkey := range mydata.zonedataMap {
+	//
+	//	tablename := cAccountData + mapkey
+	//
+	//	Instance().mysqldb().SavetoRedis(Instance().redisdb(), tablename, &mydata.endSync)
+	//}
+	//mydata.endSync.Wait()
 }

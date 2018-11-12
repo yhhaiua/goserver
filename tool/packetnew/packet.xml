@@ -1,0 +1,993 @@
+
+<!-- client to server packet: type 0 -->
+<!-- server to client packet: type 1 -->
+<!-- ref means value type,not packet(no id) -->
+<!-- id start from 500 -->
+<!-- type : 0 client,1 server,-1 only c# code -->
+<!-- id范围必须在 -32768-32767 -->
+
+<packets package="develop.packets" version="0.1.129">
+	<!-- -sever to server packets -->
+	<!-- ######################################### -->
+	<packet id="-999" name="Game_LoadConfig" type="3" des="更新全局服配置">
+	</packet>
+	<packet id="-1000" name="Game_SessionLoginData" type="3" des="game上传数据到登录服">
+		<field name="servers" type="string" des="服务器信息"></field>
+		<field name="ip" type="string" des="ip信息"></field>
+		<field name="port" type="int" des="端口信息"></field>
+	</packet>
+	<packet id="-1001" name="Game_UpdateName" type="3" des="玩家名更新">
+		<field name="type" type="int" des="0登录创建"></field>
+		<field name="operatorid" type="int" des="渠道id"></field>
+		<field name="account" type="string" des="账号信息"></field>
+		<field name="name" type="string" des="玩家名"></field>
+		<field name="clientid" type="long" des="clientid"></field>
+	</packet>
+	<packet id="-1002" name="Game_UpdateNameRet" type="3" des="玩家名更新">
+		<field name="type" type="int" des="0登录创建"></field>
+		<field name="errorcode" type="int" des="错误码"></field>
+		<field name="account" type="string" des="账号信息"></field>
+		<field name="name" type="string" des="玩家名"></field>
+		<field name="clientid" type="long" des="clientid"></field>
+	</packet>
+	<packet id="-1003" name="Game_PlayerDropped" type="3" des="玩家掉线">
+	</packet>
+	<packet id="-1004" name="Game_SessionManager" type="3" des="game上传数据到社交服">
+		<field name="servers" type="string" des="服务器信息"></field>
+	</packet>
+	<packet id="-1005" name="Game_UpdatePlayerData" type="3" des="更新玩家数据">
+		<field name="playerid" type="long" des="玩家id"></field>
+		<field name="infos" type="ref" refType="DateManage" des="玩家数据"></field>
+	</packet>
+	<packet id="-1006" name="Game_PlayerOffline" type="3" des="玩家离线">
+		<field name="playerid" type="long" des="玩家id"></field>
+	</packet>
+	<packet id="-1007" name="Game_Close" type="3" des="服务器关闭">
+		<field name="servers" type="string" des="服务器信息"></field>
+	</packet>
+	
+	<!-- -竞技场服务器包 -->
+	<packet id="-1008" name="Game_ArenaCardBattle" type="3" des="上阵卡牌信息">
+		<field name="type" type="int" des="0上阵1更新卡牌数据"></field>
+		<field name="cards" type="refArray" refType="ArenaCardInfo" des="卡牌信息"></field>
+	</packet>
+	<packet id="-1009" name="Game_Arenacards" type="3" des="上阵的卡牌信息">
+		<field name="cards" type="int[]" des="玩家上阵的卡牌"></field>
+	</packet>
+	<packet id="-1010" name="Game_ArenaGet" type="3" des="获取排行奖励">
+		<field name="lastrank" type="int" des="玩家的排行"></field>
+	</packet>
+	<packet id="-1011" name="Game_ArenaProp" type="3" des="公司属性更新">
+		<field name="prop" type="long[]" des="公司属性"></field>
+	</packet>
+	<!-- 活动剧情服务器包 -->
+	<packet id="-1101" name="GameStory_Updatedate" type="3" des="更新玩家数据">
+		<field name="value" type="int" des="玩家数据"></field>
+		<field name="storyid" type="int" des="活动id"></field>
+		<field name="starttime" type="long" des="活动开始时间"></field>
+	</packet>
+	<packet id="-1102" name="GameStory_ViewRank" type="3" des="查看排行">
+		<field name="storyid" type="int" des="活动id"></field>
+		<field name="starttime" type="long" des="活动开始时间"></field>
+	</packet>
+	<!-- ######################################### -->
+	<!-- -clent to server packets -->
+	<!-- ######################################### -->
+
+	<packet id="1000" name="CSystem_HB" type="0" des="心跳包">
+	</packet>
+	<packet id="1001" name="CLogin_Login" type="0" des="登陆">
+		<field name="user" type="String" des="账号" />
+		<field name="name" type="String" des="玩家名" />
+		<field name="time" type="String" des="时间戳" />
+		<field name="sign" type="String" des="" />
+		<field name="channelid" type="String" des="渠道名称" />
+	</packet>
+	<packet id="1002" name="CSystem_GetVesion" type="0" des="获取版本号">
+	</packet>
+	<packet id="1103" name="CLogin_Create" type="0" des="创建角色">
+		<field name="user" type="String" des="账号" />
+		<field name="name" type="string" des="玩家名字" />
+	</packet>
+	<packet id="1104" name="CCheat_F9" type="0" des="测试入口">
+		<field name="type" type="int" des="类型" />
+		<field name="id" type="int" des="id" />
+		<field name="count" type="int" des="数量" />
+	</packet>
+	<packet id="1105" name="CLogin_Renamed" type="0" des="改名">
+		<field name="name" type="string" des="玩家名字" />
+	</packet>
+	<packet id="1106" name="CLogin_ClientFinish" type="0" des="前端完成">
+	</packet>
+	<!-- 充值数据包 -->
+ 	<packet id="1180" name="CCharge_Info" type="0" des="请求充值信息">
+ 	</packet>
+	<!-- 防沉迷数据包 -->
+	<packet id="1190" name="CPreventAddictionInfo" type="0" des="请求防沉迷结果">
+ 	</packet>
+ 	
+ 	<packet id="1191" name="CPreventAddictionUpload" type="0" des="上传防沉迷结果">
+ 		<field name="citizenNum" type="string" des="身份证" />
+		<field name="phoneNum" type="string" des="手机号" />
+ 	</packet>
+	
+ 	
+	<!-- 手机数据包 -->
+	<packet id="1201" name="CPhone_SelectBig" type="0" des="选择剧情">
+		<field name="type" type="int" des="主角类型" />
+		<field name="id" type="int" des="大剧情id" />
+	</packet>
+	<packet id="1202" name="CPhone_SelectWeChat" type="0" des="选择聊天内容">
+		<field name="type" type="int" des="主角类型" />
+		<field name="id" type="int" des="大剧情id" />
+		<field name="selectid" type="int" des="选择id" />
+	</packet>
+	<packet id="1203" name="CPhone_ReWeChatAllBig" type="0" des="请求所有大剧情信息">
+		<field name="type" type="int" des="主角类型" />
+	</packet>
+	<packet id="1204" name="CPhone_ReWeChatBig" type="0" des="请求单个大剧情信息">
+		<field name="type" type="int" des="主角类型" />
+		<field name="id" type="int" des="大剧情id" />
+	</packet>
+	<packet id="1205" name="CPhone_ChangeNoteName" type="0" des="改变主角备注名">
+		<field name="type" type="int" des="主角类型" />
+		<field name="name" type="string" des="备注名字" />
+	</packet>
+	<packet id="1206" name="CPhone_SelectMessage" type="0" des="朋友圈选择留言（发布状态）">
+		<field name="id" type="int" des="剧情id" />
+		<field name="selectid" type="int" des="选择id" />
+	</packet>
+	<!-- 抽卡数据包 -->
+	<packet id="1301" name="CDraw_Strat" type="0" des="开始抽卡">
+		<field name="id" type="int" des="抽卡消耗的道具（item.xml）" />
+		<field name="type" type="int" des="0抽一次1抽11次" />
+	</packet>
+	<!-- 公司数据包 -->
+	<packet id="1401" name="CTrain_LevelUp" type="0" des="升级培训部">
+	</packet>
+	<packet id="1402" name="CTrain_AddProp" type="0" des="增加培训部属性">
+	<field name="id" type="int" des="表编号(train.xml id)" />
+	</packet>
+	<packet id="1403" name="CTrain_ExpertLevelUp" type="0" des="专家升级">
+	<field name="id" type="int" des="专家id" />
+	</packet>
+	<!-- 卡牌数据包 -->
+	<packet id="1501" name="CCard_Composite" type="0" des="碎片合成">
+	<field name="id" type="int" des="碎片编号" />
+	</packet>
+	<packet id="1502" name="CCard_Destroy" type="0" des="卡牌销毁">
+	<field name="cards" type="refArray" refType="CardDestroyInfo" des="销毁的卡牌信息"></field>
+	</packet>
+	<packet id="1503" name="CCard_AddExp" type="0" des="卡牌消耗道具添加经验">
+	<field name="cardid" type="int" des="添加的卡牌id" />
+	<field name="itemid" type="int" des="道具编号（常量表中）" />
+	</packet>
+	<packet id="1504" name="CCard_LevelUp" type="0" des="提升一级">
+	<field name="cardid" type="int" des="升级的卡牌id" />
+	</packet>
+	<packet id="1505" name="CCard_StarUp" type="0" des="卡牌升星">
+	<field name="cardid" type="int" des="升级的卡牌id" />
+	</packet>
+	<packet id="1506" name="CCard_Evolution" type="0" des="卡牌进化">
+	<field name="cardid" type="int" des="进化的卡牌id" />
+	</packet>
+	<packet id="1507" name="CCard_Show" type="0" des="卡牌展示选择">
+	<field name="cardid" type="int" des="卡牌id" />
+	<field name="show" type="byte" des="0初始1进化" />
+	</packet>
+	<packet id="1508" name="CCard_ReceiveStar" type="0" des="领取卡牌星级奖励">
+	<field name="cardid" type="int" des="卡牌id" />
+	<field name="star" type="int" des="对应星级" />
+	</packet>
+	<!-- 关卡数据包 -->
+	<packet id="1602" name="CPort_Fight" type="0" des="关卡战斗包">
+	<field name="id" type="int" des="关卡id" />
+	<field name="texts" type="int[]" des="选择的文本事件" />
+	<field name="experts" type="int[]" des="专家事件中选择的专家（如果有多个专家事件，按照表中顺序）" />
+	<field name="cards" type="int[]" des="召唤的卡牌id" />
+	</packet>
+	<packet id="1603" name="CPort_PlotComplete" type="0" des="关卡剧情完成">
+	<field name="id" type="int" des="关卡id" />
+	</packet>
+	<packet id="1604" name="CPort_Published" type="0" des="出版">
+	<field name="id" type="int" des="关卡id" />
+	<field name="count" type="int" des="出版次数" />
+	</packet>
+	<!-- 主界面数据包 -->
+	<packet id="1701" name="CPainted_Select" type="0" des="立绘选择">
+	<field name="id" type="int" des="选择的立绘id" />
+	</packet>
+	<packet id="1702" name="CMain_BuyByGold" type="0" des="购买">
+	<field name="type" type="int" des="0金币购买1体力购买" />
+	</packet>
+	<packet id="1703" name="CMain_EnergyTime" type="0" des="体力时间戳到了">
+	</packet>
+	<packet id="1704" name="CPersonal_Avatar" type="0" des="改变头像">
+	<field name="avatarid" type="int" des="头像id" />
+	</packet>
+	<packet id="1705" name="CPersonal_Volume" type="0" des="改变音量">
+	<field name="backmusic" type="int" des="背景音乐音量(0-100)" />
+	<field name="sound" type="int" des="音效音量(0-100)" />
+	<field name="dubbing" type="int" des="配音音量(0-100)" />
+	</packet>
+	<!-- 回忆副本数据包 -->
+	<packet id="1801" name="CRecall_Reset" type="0" des="回忆副本重置">
+	<field name="id" type="int" des="关卡id" />
+	</packet>
+	<packet id="1802" name="CRecall_Buy" type="0" des="时光碎片购买">
+	</packet>
+	<packet id="1803" name="CRecall_Time" type="0" des="时光碎片时间戳到了">
+	</packet>
+	<!-- 片段数据包 -->
+	<packet id="1901" name="CFragment_end" type="0" des="片段完成">
+	<field name="id" type="int" des="片段id" />
+	</packet>
+	<!-- 好友数据包 -->
+	<packet id="2000" name="CFriend_Request" type="0" des="请求包">
+	<field name="type" type="byte" des="0好友请求1申请列表请求" />
+	</packet>
+	<packet id="2001" name="CFriend_ApplyAdd" type="0" des="申请添加好友">
+	<field name="playerid" type="long" des="玩家id" />
+	</packet>
+	<packet id="2002" name="CFriend_RequestAgree" type="0" des="好友申请回应">
+	<field name="playerid" type="long" des="玩家id(id为0全部操作)" />
+	<field name="type" type="byte" des="0拒绝1同意" />
+	</packet>
+	<packet id="2003" name="CFriend_Del" type="0" des="删除好友">
+	<field name="playerid" type="long" des="玩家id" />
+	</packet>
+	<packet id="2004" name="CFriend_LockFor" type="0" des="请求寻找好友面板">
+	<field name="type" type="byte" des="0请求1刷新2一键申请" />
+	</packet>
+	<packet id="2005" name="CFriend_Search" type="0" des="玩家查找">
+	<field name="playerid" type="long" des="玩家id" />
+	</packet>
+	<packet id="2006" name="CFriend_reward" type="0" des="好友奖励操作">
+	<field name="type" type="byte" des="0全部赠送和领取1赠送2领取" />
+	<field name="playerid" type="long" des="玩家id" />
+	</packet>
+	<!-- 邮件数据包 -->
+	<packet id="2100" name="CMail_Request" type="0" des="获取所有邮件信息">
+	</packet>
+	<packet id="2101" name="CMail_ReadMail" type="0" des="阅读邮件">
+		<field name="id" type="int" des="邮件id" />
+	</packet>
+	<packet id="2102" name="CMail_GetFj" type="0" des="提取附件">
+		<field name="id" type="int" des="邮件id" />
+	</packet>
+	<packet id="2103" name="CMail_GetFjs" type="0" des="提取所有附件">
+	</packet>
+	<packet id="2104" name="CMail_DelMail" type="0" des="删除邮件">
+		<field name="id" type="int" des="邮件id" />
+	</packet>
+	<packet id="2105" name="CMail_DelMails" type="0" des="删除所有附件">
+	</packet>
+	<!-- 成就数据包 -->
+	<packet id="2201" name="CAchie_GetInfo" type="0" des="获取玩家成就信息">
+	</packet>
+	<packet id="2202" name="CAchie_Receive" type="0" des="领取成就奖励">
+		<field name="id" type="int" des="成就id（achievetype*100+tasktype）" />
+		<field name="level" type="int" des="任务等级" />
+	</packet>
+	<!-- 商城数据包 -->
+	<packet id="2301" name="CShop_GetBuyInfo" type="0" des="获取商城数据已购买数据">
+	</packet>
+	<packet id="2302" name="CShop_Buy" type="0" des="商城购买">
+	<field name="id" type="int" des="商品id" />
+	<field name="count" type="int" des="购买数量" />
+	</packet>
+	<packet id="2303" name="CShop_MysticInfo" type="0" des="获取神秘商店数据">
+	</packet>
+	<packet id="2304" name="CShop_MysticBuy" type="0" des="神秘商店购买">
+	<field name="intdex" type="int" des="所在位置（0开始）" />
+	</packet>
+	<packet id="2305" name="CShop_MysticGift" type="0" des="神秘商店礼包领取">
+	<field name="id" type="int" des="商品id" />
+	</packet>
+	<packet id="2306" name="CShop_MysticRefresh" type="0" des="神秘商店手动刷新">
+	</packet>
+	<packet id="2307" name="CExchangeShop_Buy" type="0" des="兑换商店购买">
+	<field name="id" type="int" des="购买专家id" />
+	</packet>
+	<!-- 竞技场数据包 -->
+	<packet id="2401" name="CArena_GetInfo" type="0" des="请求竞技场面板信息">
+	</packet>
+	<packet id="2402" name="CArena_CardBattle" type="0" des="卡牌上阵">
+	<field name="id" type="int[]" des="上阵的卡牌" />
+	</packet>
+	<packet id="2403" name="CArena_ChangeBatch" type="0" des="换一批">
+	</packet>
+	<packet id="2404" name="CArena_Fight" type="0" des="竞技场战斗">
+	<field name="index" type="int" des="挑战位置(0,1,2)" />
+	</packet>
+	<packet id="2405" name="CArena_BuyCount" type="0" des="购买挑战次数">
+	</packet>
+	<packet id="2406" name="CArena_ReceiveDay" type="0" des="领取每日排行奖励">
+	</packet>
+	<packet id="2407" name="CArena_ViewRank" type="0" des="查看排行信息">
+	</packet>
+	
+	<!--主题剧情数据包 -->
+	<packet id="2501" name="CThemeStory_End" type="0" des="主题剧情小节完成">
+	<field name="id" type="int" des="主题剧情id" />
+	</packet>
+	<packet id="2502" name="CThemeStory_OpenNew" type="0" des="开启新的主题剧情小节">
+	<field name="id" type="int" des="要开启的主题剧情id" />
+	</packet>
+	<!--活动剧情数据包 -->
+	<packet id="2601" name="CActiveStory_ViewRank" type="0" des="查看排行信息">
+	</packet>
+	<packet id="2602" name="CActiveStory_Gift" type="0" des="领取礼包">
+	<field name="index" type="int" des="领取的位置（从0开始）" />
+	</packet>
+	<packet id="2603" name="CActiveStory_GetBuyInfo" type="0" des="获取已购买数据">
+	</packet>
+	<packet id="2604" name="CActiveStory_Buy" type="0" des="购买">
+	<field name="id" type="int" des="商品id" />
+	</packet>
+<!-- ######################################### -->
+	<!-- -server to  clent packets -->
+	<!-- ######################################### -->
+	<packet id="10000" name="SSystem_HB" type="1" des="心跳包" module="system">
+		<field name="serverTime" type="long" des="服务器时间"></field>
+		<field name="configVersion" type="String" des="配置表版本"></field>
+	</packet>
+	<packet id="10001" name="SSystem_Error" type="1" des="错误"
+		module="system">
+		<field name="errorCode" type="short" des="错误的code" />
+		<field name="value" type="string" des="错误信息" />
+	</packet>
+	<packet id="10002" name="SLogin_Login_In_Other" type="1" des="重复登入，被T下线"
+		module="login">
+	</packet>
+	<packet id="10003" name="SSystem_Stop" type="1" des="停服指令">
+	</packet>
+	<packet id="10004" name="SAccountBlocked" type="1" des="账号被封">
+	</packet>
+	<packet id="10005" name="SLogin_LoginResult" type="1" des="登陆返回"
+		module="login">
+		<field name="username" type="string" des="账号" />
+		<field name="name" type="String" des="玩家名" />
+		<field name="playerid" type="long" des="玩家id" />
+		<field name="companylevel" type="int" des="公司等级" />
+		<field name="companyexp" type="long" des="公司经验" />
+		<field name="gold" type="int" des="钻石" />
+		<field name="money" type="long" des="金币" />
+		<field name="physical" type="int" des="体力" />
+		<field name="investMedal" type="int" des="竞技场货币" />
+	</packet>
+	<packet id="10006" name="SLogin_ClientFinish" type="1" des="前端完成返回">
+	</packet>
+	<!-- 防沉迷数据包 -->
+	<packet id="10090" name="SPreventAddictionInfo" type="1" des="防沉迷结果">
+ 		<field name="result" type="byte" des="0未登记防沉迷  1以登记"/>
+ 	</packet>
+ 	<!-- 充值数据包 -->
+ 	<packet id="10101" name="SCharge_Info" type="1" des="充值信息">
+ 		<field name="infos" type="refArray" refType="ChargeShopInfo" des="充值商品信息" />
+ 	</packet>
+ 	<packet id="10102" name="SCharge_UpdateInfo" type="1" des="更新单个充值信息">
+ 		<field name="infos" type="ref" refType="ChargeShopInfo" des="充值商品信息" />
+ 	</packet>
+ 	<packet id="10103" name="SCharge_LimitBuyInfo" type="1" des="一元限购信息">
+ 		<field name="id" type="int" des="充值id" />
+ 		<field name="time" type="long" des="结束时间戳（为0直接结束、时间戳到自动隐藏）" />
+ 	</packet>
+ 	
+	<packet id="11006" name="SSystem_GetVesion" type="1" des="获取版本号">
+		<field name="vesion" type="string" des="版本" />
+	</packet>
+	<packet id="11007" name="SLogin_Renamed" type="1" des="改名返回">
+		<field name="name" type="string" des="玩家名字" />
+	</packet>
+	<packet id="11107" name="SServerStartTime" type="1" des="服务器开启时间"
+		module="login">
+		<field name="serverstart" type="long" des="服务器开启时间" />
+	</packet>
+	
+	<packet id="11108" name="SPlayer_PlayerDataChange" type="1"
+		module="player">
+		<field name="id" type="int" des="定义的id(item.xml)" />
+		<field name="change" type="int" des="变化的数值" />
+		<field name="value" type="long" des="结果数值" />
+	</packet>
+	<packet id="11109" name="SPlayer_Levelup" type="1" des="公司升级">
+		<field name="old" type="int" des="老的等级" />
+		<filed name="level" type="int" des="新的等级" />
+	</packet>
+	<packet id="11110" name="SPlayer_PropChange" type="1" des="公司属性改变">
+		<field name="writing" type="int" des="写作" />
+		<field name="painting" type="int" des="绘画" />
+		<filed name="typesetting" type="int" des="排版" />
+		<filed name="imagination" type="int" des="想象力" />
+	</packet>
+	<!-- 公司数据包 -->
+	<packet id="11200" name="STrain_PropChange" type="1" des="培训部属性信息">
+		<field name="type" type="int" des="0登录1升级等级2增加属性" />
+		<field name="level" type="int" des="培训部等级" />
+		<field name="writing" type="int" des="写作" />
+		<field name="painting" type="int" des="绘画" />
+		<filed name="typesetting" type="int" des="排版" />
+		<filed name="imagination" type="int" des="想象力" />
+	</packet>
+	<packet id="11201" name="STrain_ExpertLevelUp" type="1" des="专家升级返回">
+		<field name="id" type="int" des="专家id" />
+		<field name="level" type="int" des="专家等级" />
+	</packet>
+	<!-- 背包数据包 -->
+	<packet id="12001" name="SBag_LoginCardInfo" type="1" des="登录发送卡牌信息">
+		<field name="cards" type="refArray" refType="CardInfo" des="卡牌组信息"></field>
+	</packet>
+	<packet id="12002" name="SBag_LoginChipInfo" type="1" des="登录发送卡牌碎片信息">
+		<field name="chips" type="refArray" refType="ChipInfo" des="卡牌碎片组信息"></field>
+	</packet>
+	<packet id="12003" name="SBag_LoginItemInfo" type="1" des="登录发送道具信息">
+		<field name="items" type="refArray" refType="ItemInfo" des="道具组信息"></field>
+	</packet>
+	<packet id="12004" name="SBag_LoginExpertInfo" type="1" des="登录发送专家信息">
+		<field name="experts" type="refArray" refType="ExpertInfo" des="专家组信息"></field>
+	</packet>
+	<packet id="12005" name="SBag_Changes" type="1" des="背包物品变化"
+		module="bag">
+		<field name="items" type="refArray" refType="BonusData" des="变化的道具格数据" />
+	</packet>
+	<packet id="12006" name="SBag_BonusShow" type="1" des="奖励提示 不拆分奖励的提示"
+		module="bag">
+		<field name="bonus" type="refArray" refType="BonusData" des="奖励信息" />
+	</packet>
+	<!-- 手机数据包 -->
+	<packet id="12101" name="SPhone_LoginWeChatInfo" type="1" des="登录发送当前最新聊天信息">
+		<field name="infos" type="refArray" refType="WeChatInfo" des="剧情信息"></field>
+	</packet>
+	<packet id="12102" name="SPhone_UpdateOneWeChatInfo" type="1" des="更新单个短信信息">
+		<field name="oneinfo" type="ref" refType="OneWeChatInfo" des="对话信息"></field>
+	</packet>
+	<packet id="12103" name="SPhone_SelectWeChat" type="1" des="短信选择信息返回">
+		<field name="type" type="int" des="类型" />
+		<field name="id" type="int" des="大剧情id" />
+		<field name="selectid" type="int" des="选择id" />
+	</packet>
+	
+	<packet id="12104" name="SPhone_ReWeChatBig" type="1" des="请求单个大剧情信息返回">
+		<field name="type" type="int" des="主角类型" />
+		<field name="id" type="int" des="大剧情id" />
+		<field name="content" type="int[]" des="内容" />
+	</packet>
+	<packet id="12105" name="SPhone_TriggerWeChatInfo" type="1" des="触发信息">
+		<field name="type" type="int" des="主角类型" />
+		<field name="story" type="ref" refType="BigStoryInfo" des="剧情信息" />
+	</packet>
+	<packet id="12106" name="SPhone_SelectBig" type="1" des="选择剧情返回">
+		<field name="type" type="int" des="主角类型" />
+		<field name="story" type="ref" refType="BigStoryInfo" des="剧情信息" />
+	</packet>
+	<packet id="12107" name="SPhone_ReWeChatAllBig" type="1" des="请求所有大剧情信息返回">
+		<field name="type" type="int" des="主角类型" />
+		<field name="story" type="refArray" refType="BigStoryInfo" des="剧情信息" />
+	</packet>
+	<packet id="12108" name="SPhone_ChangeNoteName" type="1" des="改变主角备注名返回">
+		<field name="type" type="int" des="主角类型" />
+		<field name="name" type="string" des="备注名字" />
+	</packet>
+	<packet id="12109" name="SPhone_FriendLevelup" type="1" des="手机好友度升级">
+		<field name="type" type="int" des="主角类型" />
+		<field name="old" type="int" des="老的等级" />
+		<filed name="level" type="int" des="新的等级" />
+	</packet>
+	<packet id="12110" name="SPhone_LoginCircleInfo" type="1" des="登录发送手机朋友圈信息">
+		<field name="infos" type="refArray" refType="CircleInfo" des="朋友圈信息"></field>
+	</packet>
+	<packet id="12111" name="SPhone_TriggerCircleInfo" type="1" des="触发朋友圈信息">
+		<field name="id" type="int" des="剧情id" />
+	</packet>
+	<packet id="12112" name="SPhone_SelectMessage" type="1" des="朋友圈选择留言（发布状态）返回">
+		<field name="id" type="int" des="剧情id" />
+		<field name="selectid" type="int" des="选择id" />
+	</packet>
+	<!-- 抽卡数据包 -->
+	<packet id="12201" name="SDraw_UpdateCount" type="1" des="更新抽卡次数">
+	<field name="count" type="int" des="已经抽取过的次数" />
+	<field name="halfgold" type="byte" des="是否钻石半价(0是半价1不是半价)" />
+	</packet>
+	<packet id="12202" name="SDraw_Strat" type="1" des="开始抽卡成功返回">
+		<field name="id" type="int" des="抽卡消耗的道具（item.xml）" />
+		<field name="type" type="int" des="0抽一次1抽11次" />
+		<field name="infos" type="refArray" refType="BonusData" des="抽到的物品"></field>
+	</packet>
+	<!-- 卡牌数据包 -->
+	<packet id="12301" name="SCard_Composite" type="1" des="碎片合成返回">
+	<field name="id" type="int" des="碎片编号" />
+	</packet>
+	<packet id="12302" name="SCard_Destroy" type="1" des="卡牌销毁成功返回">
+	</packet>
+	<packet id="12303" name="SCard_ExpChange" type="1" des="卡牌经验改变包">
+	<field name="cardid" type="int" des="卡牌id" />
+	<field name="change" type="int" des="变化的数值" />
+	<field name="value" type="long" des="结果数值" />
+	</packet>
+	<packet id="12304" name="SCard_LevelUp" type="1" des="卡牌升级包">
+	<field name="cardid" type="int" des="卡牌id" />
+	<field name="old" type="int" des="旧的等级" />
+	<field name="level" type="int" des="当前等级" />
+	<field name="maxexp" type="long" des="最大经验" />
+	</packet>
+	<packet id="12305" name="SCard_StarUp" type="1" des="卡牌升星成功返回">
+	<field name="cardid" type="int" des="升级的卡牌id" />
+	<field name="star" type="int" des="当前星级" />
+	</packet>
+	<packet id="12306" name="SCard_Evolution" type="1" des="卡牌进化返回">
+	<field name="cardid" type="int" des="进化的卡牌id" />
+	<field name="evo" type="byte" des="进化值（0未进化1进化一次）" />
+	<field name="show" type="byte" des="0初始1进化" />
+	</packet>
+	<packet id="12307" name="SCard_Show" type="1" des="卡牌展示选择返回">
+	<field name="cardid" type="int" des="卡牌id" />
+	<field name="show" type="byte" des="0初始1进化" />
+	</packet>
+	<packet id="12308" name="SCard_StarAwardInfo" type="1" des="已经领取过的星级奖励，登录发送">
+	<field name="infos" type="refArray" refType="StarAwardInfo" des="卡牌星级奖励"></field>
+	</packet>
+	<packet id="12309" name="SCard_ReceiveStar" type="1" des="领取卡牌星级奖励返回">
+	<field name="cardid" type="int" des="卡牌id" />
+	<field name="star" type="int" des="对应星级" />
+	</packet>
+	<!-- 关卡数据包 -->
+	<packet id="12400" name="SPort_AllInfo" type="1" des="登录发送关所有卡信息">
+	<field name="type" type="int" des="0主线1困难关卡" />
+	<field name="nowport" type="refArray" refType="SinglePortInfo" des="关卡信息"></field>
+	</packet>
+	<packet id="12401" name="SPort_LoginInfo" type="1" des="登录发送关卡信息">
+	<field name="nowport" type="ref" refType="SinglePortInfo" des="完成的关卡"></field>
+	<field name="hardport" type="ref" refType="SinglePortInfo" des="完成的困难关卡"></field>
+	</packet>
+	<packet id="12403" name="SPort_Fight" type="1" des="关卡战斗包返回">
+	<field name="id" type="int" des="关卡id" />
+	<field name="score" type="int" des="得分" />
+	<field name="addexp" type="int" des="公司增加的经验" />
+	<field name="nowexp" type="long" des="公司当前经验" />
+	<field name="old" type="int" des="公司之前等级" />
+	<field name="level" type="int" des="公司当前等级" />
+	<field name="firsts" type="refArray" refType="BonusData" des="首通奖励信息"></field>
+	<field name="rewards" type="refArray" refType="BonusData" des="奖励信息"></field>
+	<field name="cards" type="refArray" refType="CardFightInfo" des="卡牌升级信息"></field>
+	</packet>
+	<packet id="12404" name="SPort_PlotComplete" type="1" des="关卡剧情完成返回">
+	<field name="plot" type="ref" refType="SinglePortInfo" des="信息"></field>
+	<field name="firsts" type="refArray" refType="BonusData" des="首通奖励信息"></field>
+	</packet>
+	<packet id="12405" name="SPort_Published" type="1" des="出版返回">
+	<field name="id" type="int" des="关卡id" />
+	<field name="count" type="int" des="出版次数" />
+	<field name="infos" type="refArray" refType="PublishedInfo" des="出版奖励"></field>
+	</packet>
+	<packet id="12406" name="SPort_UpdateInfo" type="1" des="更新关卡信息">
+	<field name="type" type="int" des="0主线1困难关卡" />
+	<field name="port" type="ref" refType="SinglePortInfo" des="最新的关卡信息"></field>
+	</packet>
+	<!-- 主界面数据包 -->
+	<packet id="12501" name="SPainted_Select" type="1" des="立绘选择成功返回">
+	<field name="id" type="int" des="选择的立绘id" />
+	</packet>
+	<packet id="12502" name="SPainted_LoginInfo" type="1" des="登录信息">
+	<field name="figureid" type="int" des="人物立绘id" />
+	<field name="scenesid" type="int" des="场景立绘id" />
+	</packet>
+	<packet id="12503" name="SMain_BuyByGold" type="1" des="购买返回">
+	<field name="type" type="int" des="0金币购买1体力购买" />
+	<field name="count" type="int" des="已经购买次数" />
+	</packet>
+	<packet id="12504" name="SMain_BuyLoginInfo" type="1" des="体力与金币购买信息发送">
+	<field name="moneycount" type="int" des="金币购买次数" />
+	<field name="energycount" type="int" des="体力购买次数" />
+	</packet>
+	<packet id="12505" name="SMain_EnergyTime" type="1" des="体力倒计时触发">
+	<field name="time" type="long" des="添加体力的时间戳" />
+	</packet>
+	<packet id="12506" name="SPersonal_LongInfo" type="1" des="登录发送个人信息">
+	<field name="avatarid" type="int" des="头像id" />
+	<field name="backmusic" type="int" des="背景音乐音量(0-100)" />
+	<field name="sound" type="int" des="音效音量(0-100)" />
+	<field name="dubbing" type="int" des="配音音量(0-100)" />
+	</packet>
+	<packet id="12507" name="SPersonal_Avatar" type="1" des="改变头像">
+	<field name="avatarid" type="int" des="头像id" />
+	</packet>
+	<packet id="12508" name="SPersonal_Volume" type="1" des="改变音量">
+	<field name="backmusic" type="int" des="背景音乐音量(0-100)" />
+	<field name="sound" type="int" des="音效音量(0-100)" />
+	<field name="dubbing" type="int" des="配音音量(0-100)" />
+	</packet>
+	<!-- 回忆副本数据包 -->
+	<packet id="12601" name="SRecall_AllInfo" type="1" des="回忆副本所有关卡信息(登录发送)">
+	<field name="timechip" type="int" des="时光碎片数量" />
+	<field name="time" type="long" des="时光碎片回复时间戳" />
+	<field name="buycount" type="int" des="时光碎片已经购买次数" />
+	<field name="ports" type="refArray" refType="SingleRecallInfo" des="关卡信息"></field>
+	</packet>
+	<packet id="12602" name="SRecall_UpdataInfo" type="1" des="回忆副本更新关卡信息（只更新改变的）">
+	<field name="ports" type="refArray" refType="SingleRecallInfo" des="关卡信息"></field>
+	</packet>
+	<packet id="12603" name="SRecall_Reset" type="1" des="回忆副本重置成功">
+	<field name="id" type="int" des="关卡id" />
+	</packet>
+	<packet id="12604" name="SRecall_Time" type="1" des="时光碎片时间戳">
+	<field name="time" type="long" des="时间戳" />
+	</packet>
+	<packet id="12605" name="SRecall_BuyCount" type="1" des="时光碎片购买次数更新">
+	<field name="type" type="int" des="0购买返回1过天更新" />
+	<field name="buycount" type="int" des="已经购买次数" />
+	</packet>
+	<!-- 片段数据包 -->
+	<packet id="12701" name="SFragment_Info" type="1" des="登录发送所有已经完成的片段">
+	<field name="id" type="int[]" des="片段id" />
+	</packet>
+	<packet id="12702" name="SFragment_end" type="1" des="片段完成返回">
+	<field name="id" type="int" des="片段id" />
+	</packet>
+	<!-- 好友数据包 -->
+	<packet id="12801" name="SFriend_ApplyAdd" type="1" des="申请添加好友成功返回">
+	<field name="playerid" type="long" des="玩家id" />
+	</packet>
+	<packet id="12802" name="SFriend_AddApplyInfo" type="1" des="添加单个好友申请信息">
+	<field name="infos" type="ref" refType="FriendApplyInfo" des="单个好友申请信息"></field>
+	</packet>
+	<packet id="12803" name="SFriend_ApplyDel" type="1" des="申请信息删除">
+	<field name="playerid" type="long[]" des="玩家id" />
+	</packet>
+	<packet id="12804" name="SFriend_UpdateInfo" type="1" des="更新好友信息（没有添加，就更新好友信息）">
+	<field name="type" type="int" des="0添加1赠送体力改变2领取体力改变3获得赠送改变4全部" />
+	<field name="infos" type="refArray" refType="FriendInfo" des="好友信息"></field>
+	</packet>
+	<packet id="12805" name="SFriend_AllInfo" type="1" des="所有好友信息">
+	<field name="point" type="int" des="我的友情点" />
+	<field name="infos" type="refArray" refType="FriendInfo" des="好友信息"></field>
+	</packet>
+	<packet id="12806" name="SFriend_AllApplyInfo" type="1" des="所有好友申请信息">
+	<field name="infos" type="refArray" refType="FriendApplyInfo" des="好友申请信息"></field>
+	</packet>
+	<packet id="12807" name="SFriend_Del" type="1" des="好友删除">
+	<field name="playerid" type="long" des="玩家id" />
+	</packet>
+	<packet id="12808" name="SFriend_LockFor" type="1" des="请求寻找好友面板返回">
+	<field name="type" type="byte" des="0请求1刷新2一键申请" />
+	<field name="infos" type="refArray" refType="FriendLockInfo" des="寻找到的信息"></field>
+	</packet>
+	<packet id="12809" name="SFriend_Search" type="1" des="玩家查找返回">
+	<field name="infos" type="ref" refType="FriendLockInfo" des="寻找到的信息"></field>
+	</packet>
+	<packet id="12810" name="SFriend_reward" type="1" des="好友奖励操作返回">
+	<field name="type" type="byte" des="0全部赠送和领取1赠送2领取" />
+	<field name="playerid" type="long" des="玩家id" />
+	<field name="point" type="int" des="获得的友情点" />
+	<field name="physical" type="int" des="获得的体力" />
+	</packet>
+	<!-- 邮件数据包 -->
+	<packet id="12901" name="SMail_Request" type="1" des="获取所有邮件信息返回">
+	<field name="mails" type="refArray" refType="MailVO" des="邮件集合" />
+	</packet>
+	<packet id="12902" name="SMail_ReadMail" type="1" des="阅读邮件">
+		<field name="id" type="int" des="邮件id" />
+	</packet>
+	<packet id="12903" name="SMail_GetFj" type="1" des="提取附件">
+		<field name="id" type="int" des="邮件id" />
+	</packet>
+	<packet id="12904" name="SMail_GetFjs" type="1" des="提取所有附件">
+		<field name="ids" type="int[]" des="邮件id列表" />
+	</packet>
+	<packet id="12905" name="SMail_NewMail" type="1" des="新邮件">
+		<field name="mail" type="ref" refType="MailVO" des="新邮件内容" />
+	</packet>
+	<packet id="12906" name="SMail_DelMail" type="1" des="删除邮件">
+		<field name="id" type="int" des="删除的邮件id" />
+	</packet>
+	<packet id="12907" name="SMail_DelMails" type="1" des="删除所有附件">
+		<field name="ids" type="int[]" des="删除的邮件id列表" />
+	</packet>
+	<!-- 成就数据包 -->
+	<packet id="13001" name="SAchie_GetInfo" type="1" des="获取玩家成就信息返回">
+	<field name="infos" type="refArray" refType="AchieSingleInfo" des="成就信息"></field>
+	</packet>
+	<packet id="13002" name="SAchie_UpdateInfo" type="1" des="获取玩家成就信息返回">
+	<field name="info" type="ref" refType="AchieSingleInfo" des="更新成就信息"></field>
+	</packet>
+	<packet id="13003" name="SAchie_Receive" type="1" des="领取成就奖励成功返回">
+		<field name="id" type="int" des="成就id（achievetype*100+tasktype）" />
+		<field name="level" type="int" des="任务等级" />
+	</packet>
+	<!-- 商城数据包 -->
+	<packet id="13101" name="SShop_GetBuyInfo" type="1" des="获取商城数据已购买数据返回">
+	<field name="shops" type="refArray" refType="ShopBuyInfo" des="已经购买数据" />
+	</packet>
+	<packet id="13102" name="SShop_Buy" type="1" des="商城购买成功返回">
+	<field name="id" type="int" des="商品id" />
+	<field name="count" type="int" des="购买数量" />
+	</packet>
+	<packet id="13103" name="SShop_UpdateBuyInfo" type="1" des="更新商品购买信息">
+	<field name="shop" type="ref" refType="ShopBuyInfo" des="已经购买数据" />
+	</packet>
+	<packet id="13104" name="SShop_MysticInfo" type="1" des="获取神秘商店数据返回">
+	<field name="time" type="long" des="下次刷新时间戳" />
+	<field name="count" type="int" des="已经刷新次数" />
+	<field name="shops" type="refArray" refType="MysticShopInfo" des="神秘商店商品数据" />
+	<field name="gifts" type="refArray" refType="MysticShopGift" des="神秘商店礼包数据" />
+	</packet>
+	<packet id="13105" name="SShop_MysticBuy" type="1" des="神秘商店购买成功返回">
+	<field name="intdex" type="int" des="所在位置（0开始）" />
+	</packet>
+	<packet id="13106" name="SShop_UpdateMysticInfo" type="1" des="更新神秘商品和礼包信息">
+	<field name="shops" type="ref" refType="MysticShopInfo" des="神秘商店商品数据" />
+	<field name="gifts" type="ref" refType="MysticShopGift" des="神秘商店礼包数据" />
+	</packet>
+	<packet id="13107" name="SShop_MysticGift" type="1" des="神秘商店礼包领取成功返回">
+	<field name="id" type="int" des="商品id" />
+	</packet>
+	<packet id="13108" name="SExchangeShop_Buy" type="1" des="兑换商店购买信息返回">
+	<field name="id" type="int" des="专家id" />
+	</packet>
+	<!-- 竞技场数据包 -->
+	<packet id="13201" name="SArena_GetInfo" type="1" des="请求竞技场面板信息返回">
+	<field name="themeid" type="int" des="主题id" />
+	<field name="leadid" type="int" des="主角id（1-5）" />
+	<field name="cards" type="int[]" des="自己上阵的卡牌" />
+	<field name="count" type="int" des="今日已经战斗次数" />
+	<field name="buycount" type="int" des="今日已经购买次数" />
+	<field name="nowrank" type="int" des="角色当前排名" />
+	<field name="refreshtime" type="long" des="下次可换一批时间戳（0可以直接换一批）" />
+	<field name="dayaward" type="ref" refType="ArenaDayAwardInfo" des="每日排行奖励" />
+	<field name="infos" type="refArray" refType="ArenaTargetInfo" des="挑战对象" />
+	</packet>
+	<packet id="13202" name="SArena_CardBattle" type="1" des="卡牌上阵成功返回">
+	<field name="id" type="int[]" des="上阵的卡牌" />
+	</packet>
+	<packet id="13203" name="SArena_ChangeBatch" type="1" des="换一批成功返回">
+	<field name="refreshtime" type="long" des="下次可换一批时间戳（0可以直接换一批）" />
+	<field name="infos" type="refArray" refType="ArenaTargetInfo" des="挑战对象" />
+	</packet>
+	<packet id="13204" name="SArena_Fight" type="1" des="竞技场战斗返回">
+	<field name="result" type="int" des="结果(0失败1成功)" />
+	<field name="count" type="int" des="今日已经战斗次数" />
+	<field name="myvolume" type="int[]" des="我的销量(5个值)" />
+	<field name="targetvolume" type="int[]" des="目标销量（5个值）" />
+	<field name="infos" type="ref" refType="ArenaTargetInfo" des="单个挑战对象信息" />
+	<field name="cards" type="refArray" refType="ArenaCardInfo" des="挑战对象的卡牌信息"></field>
+	</packet>
+	<packet id="13205" name="SArena_UpdateInfo" type="1" des="更新玩家排行和对手信息">
+	<field name="nowrank" type="int" des="角色当前排名" />
+	<field name="infos" type="refArray" refType="ArenaTargetInfo" des="挑战对象" />
+	</packet>
+	<packet id="13206" name="SArena_BuyCount" type="1" des="购买挑战次数成功返回">
+	<field name="buycount" type="int" des="今日已经购买次数" />
+	</packet>
+	<packet id="13207" name="SArena_ReceiveDay" type="1" des="领取每日排行奖励成功返回">
+	</packet>
+	<packet id="13208" name="SArena_ViewRank" type="1" des="查看排行信息返回">
+	<field name="myrank" type="int" des="我的排名" />
+	<field name="infos" type="refArray" refType="ArenaRankInfo" des="排行信息" />
+	</packet>
+	<!--主题剧情数据包 -->
+	<packet id="13301" name="SThemeStory_End" type="1" des="主题剧情小节完成">
+	<field name="id" type="int" des="主题剧情id" />
+	</packet>
+	<packet id="13302" name="SThemeStory_OpenNew" type="1" des="开启新的主题剧情小节">
+	<field name="id" type="int" des="要开启的主题剧情id" />
+	</packet>
+	<packet id="13303" name="SThemeStory_GetInfo" type="1" des="获取主题剧情完成详情">
+	<field name="infos" type="refArray" refType="ThemeStoryInfo" des="主题剧情状态详情" />
+	</packet>
+	<!--活动剧情数据包 -->
+	<packet id="13401" name="SActiveStory_OpenClose" type="1" des="活动剧情开启与关闭">
+	<field name="id" type="int" des="活动剧情id" />
+	<field name="status" type="int" des="状态（0关闭1开启）" />
+	</packet>
+	<packet id="13402" name="SActiveStory_PortInfo" type="1" des="登录发送信息">
+	<field name="myvalue" type="int" des="我的最大数值（当前拥有读取背包）" />
+	<field name="index" type="int[]" des="已经领取的礼包(位置信息从0开始)" />
+	<field name="ports" type="refArray" refType="SinglePortInfo" des="关卡信息"></field>
+	</packet>
+	<packet id="13403" name="SActiveStory_UpdateInfo" type="1" des="更新单个关卡信息">
+	<field name="port" type="ref" refType="SinglePortInfo" des="最新的关卡信息"></field>
+	</packet>
+	<packet id="13404" name="SActiveStory_ViewRank" type="1" des="查看排行信息返回">
+	<field name="myrank" type="int" des="我的排名" />
+	<field name="infos" type="refArray" refType="ActiveStoryRankInfo" des="排行信息" />
+	</packet>
+	<packet id="13405" name="SActiveStory_Gift" type="1" des="领取礼包成功返回">
+	<field name="index" type="int" des="领取的位置（从0开始）" />
+	</packet>
+	<packet id="13406" name="SActiveStory_Value" type="1" des="发送历史数值">
+	<field name="myvalue" type="int" des="我的最大数值（当前拥有读取背包）" />
+	</packet>
+	<packet id="13407" name="SActiveStory_GetBuyInfo" type="1" des="获取已购买数据返回">
+	<field name="shops" type="refArray" refType="ShopBuyInfo" des="已经购买数据" />
+	</packet>
+	<packet id="13408" name="SActiveStory_Buy" type="1" des="购买成功返回">
+	<field name="id" type="int" des="商品id" />
+	</packet>
+	<packet id="13409" name="SActiveStory_UpdateBuyInfo" type="1" des="更新商品购买信息">
+	<field name="shop" type="ref" refType="ShopBuyInfo" des="已经购买数据" />
+	</packet>
+	<!-- ************* 数据封装 ****************** -->
+	<ref name="BonusData" des="奖励数据定义"> <!-- 奖励数据定义 -->
+		<field name="btype" type="byte" des="奖励类型，定义在枚举BonusType中(0货币1道具2卡牌3卡牌碎片4专家)" />
+		<field name="id" type="int" des="掉落物品的id，不同类型，id表示意义不同" />
+		<field name="count" type="int" des="数量" />
+	</ref>
+	<ref name="CardInfo" des="卡牌数据定义">
+		<field name="id" type="int" des="卡牌id" />
+		<field name="count" type="int" des="数量" />
+		<field name="level" type="int" des="卡牌等级" />
+		<field name="star" type="int" des="卡牌星级" />
+		<field name="exp" type="long" des="当前经验" />
+		<field name="maxexp" type="long" des="最大经验" />
+		<field name="evo" type="byte" des="0未进化1进化" />
+		<field name="show" type="byte" des="0展示未进化信息1展示进化形象" />
+	</ref>
+	<ref name="ChipInfo" des="卡牌碎片数据定义">
+		<field name="id" type="int" des="卡牌碎片id" />
+		<field name="count" type="int" des="数量" />
+	</ref>
+	<ref name="ItemInfo" des="道具数据定义">
+		<field name="id" type="int" des="物品id" />
+		<field name="count" type="int" des="数量" />
+	</ref>
+	<ref name="ExpertInfo" des="专家数据定义">
+		<field name="id" type="int" des="物品id" />
+		<field name="count" type="int" des="数量" />
+		<field name="level" type="int" des="专家等级" />
+	</ref>
+	<ref name="WeChatInfo" des="短信信息">
+		<field name="type" type="int" des="主角类型" />
+		<field name="id" type="int" des="已经选择的剧情id" />
+		<field name="status" type="int" des="剧情状态  0未选择1已经选择2已经完成" />
+		<field name="name" type="string" des="备注名字" />
+		<field name="friendlevel" type="int" des="好友度等级" />
+		<field name="friendexp" type="long" des="好友度经验" />
+		<field name="content" type="int[]" des="内容" />
+		<field name="storys" type="int[]" des="所有未选择的剧情信息" />
+	</ref>
+	<ref name="BigStoryInfo" des="剧情信息">
+		<field name="id" type="int" des="剧情id" />
+		<field name="status" type="int" des="剧情状态  0未选择1已经选择2已经完成" />
+	</ref>
+	<ref name="OneWeChatInfo" des="单个短信信息">
+		<field name="type" type="int" des="主角类型" />
+		<field name="id" type="int" des="已经选择的剧情id" />
+		<field name="status" type="int" des="剧情状态  0未选择1已经选择2已经完成" />
+		<field name="content" type="int[]" des="内容" />
+		<field name="storys" type="int[]" des="所有未选择的剧情信息" />
+	</ref>
+	<ref name="CircleInfo" des="手机朋友圈信息">
+		<field name="id" type="int" des="已经选择的剧情id" />
+		<field name="content" type="int[]" des="内容" />
+	</ref>
+	<ref name="DateManage" des="玩家数据">
+		<field name="level" type="int" des="玩家公司等级" />
+		<field name="name" type="string" des="玩家名" />
+		<field name="avatar" type="int" des="头像id" />
+	</ref>
+	<ref name="CardDestroyInfo" des="卡牌销毁数据定义">
+		<field name="id" type="int" des="卡牌id" />
+		<field name="count" type="int" des="数量" />
+	</ref>
+	<ref name="SinglePortInfo" des="单个关卡信息">
+		<field name="id" type="int" des="关卡id" />
+		<field name="score" type="int" des="关卡得分（如果是剧情0未完成1完成）" />
+	</ref>
+	<ref name="CardFightInfo" des="卡牌战斗信息">
+		<field name="id" type="int" des="卡牌id" />
+		<field name="addexp" type="int" des="卡牌增加的经验" />
+		<field name="nowexp" type="long" des="卡牌当前经验" />
+		<field name="old" type="int" des="之前等级" />
+		<field name="level" type="int" des="当前等级" />
+	</ref>
+	<ref name="PublishedInfo" des="出版信息">
+		<field name="addexp" type="int" des="添加的公司经验" />
+		<field name="rewards" type="refArray" refType="BonusData" des="奖励信息"></field>
+	</ref>
+	<ref name="ChargeShopInfo" des="充值商品信息（3和4类型）">
+		<field name="id" type="int" des="档次id" />
+		<field name="count" type="int" des="充值次数" />
+	</ref>
+	<ref name="StarAwardInfo" des="卡牌星级奖励">
+		<field name="id" type="int" des="卡牌id" />
+		<field name="stars" type="int[]" des="已经领取的星级" />
+	</ref>
+	<ref name="SingleRecallInfo" des="单个回忆关卡信息">
+		<field name="id" type="int" des="关卡id" />
+		<field name="score" type="int" des="关卡得分（如果是剧情0未完成1完成）" />
+		<field name="count" type="byte" des="已经挑战次数" />
+		<field name="reset" type="byte" des="已经重置次数" />
+	</ref>
+	<ref name="PlayerShapeInfo" des="玩家外形信息">
+		<field name="id" type="long" des="玩家id" />
+		<field name="name" type="string" des="玩家名" />
+		<field name="level" type="int" des="等级" />
+		<field name="avatar" type="int" des="头像id" />
+		<field name="offlinetime" type="long" des="玩家离线时间（0表示在线）" />
+	</ref>
+	<ref name="FriendApplyInfo" des="单个好友申请信息">
+		<field name="info" type="ref" refType="PlayerShapeInfo" des="玩家形象信息"></field>
+		<field name="applytime" type="long" des="申请时间戳" />
+	</ref>
+	<ref name="FriendInfo" des="单个好友信息">
+		<field name="info" type="ref" refType="PlayerShapeInfo" des="玩家形象信息"></field>
+		<field name="gift" type="byte" des="0不能赠送1可以赠送" />
+		<field name="award" type="byte" des="0没有领取1有领取" />
+	</ref>
+	<ref name="FriendLockInfo" des="寻找到的好友信息">
+		<field name="info" type="ref" refType="PlayerShapeInfo" des="玩家形象信息"></field>
+		<field name="apply" type="byte" des="0未申请1已经申请" />
+	</ref>
+	<ref name="MailVO">
+		<field name="id" type="int" des="邮件ID" />
+		<field name="createTime" type="long" des="邮件创建时间" />
+		<field name="configid" type="int" des="配置id" />
+		<field name="replaces" type="String[]" des="配置字段" />
+		<field name="title" type="String" des="主题" />
+		<field name="message" type="String" des="内容" />
+		<field name="readType" type="byte" des="是否以读(0表示未读 1表示已读)" />
+		<field name="isGet" type="byte" des="是否已经提取附件" />
+		<field name="fj" type="refArray" refType="BonusData" des="附件" />
+	</ref>
+	<ref name="AchieSingleInfo" des="单个成就信息">
+		<field name="id" type="int" des="成就id（achievetype*100+tasktype）" />
+		<field name="level" type="int" des="任务等级" />
+		<field name="status" type="int" des="成就状态(0未完成1已经完成2已经领取)" />
+		<field name="nownum" type="int" des="当前进度" />
+		<field name="maxnum" type="int" des="最大进度" />
+	</ref>
+	<ref name="ShopBuyInfo" des="商城购买信息">
+		<field name="id" type="int" des="商品id" />
+		<field name="count" type="int" des="已经购买数量" />
+	</ref>
+	<ref name="MysticShopInfo" des="神秘商店商品信息">
+		<field name="intdex" type="int" des="所在位置（0开始）" />
+		<field name="id" type="int" des="商品id" />
+		<field name="maxcount" type="int" des="数量" />
+		<field name="already" type="byte" des="是否已经购买（0没有购买1已经购买）" />
+		<field name="currencyid" type="int" des="购买货币id" />
+	</ref>
+	<ref name="MysticShopGift" des="神秘商店礼包数据">
+		<field name="id" type="int" des="商品id" />
+		<field name="status" type="int" des="0不可领取1可领取2已经领取" />
+		<field name="nownum" type="int" des="当前进度" />
+		<field name="maxnum" type="int" des="最大进度" />
+	</ref>
+	<ref name="RobotShapeInfo" des="机器人形象信息">
+		<field name="name" type="string" des="名字" />
+		<field name="level" type="int" des="等级" />
+		<field name="avatar" type="int" des="头像id" />
+	</ref>
+	<ref name="ArenaTargetInfo" des="竞技场目标信息">
+		<field name="index" type="int" des="索引id(0,1,2)" />
+		<field name="rank" type="int" des="排行" />
+		<field name="player" type="ref" refType="PlayerShapeInfo" des="玩家形象信息"></field>
+		<field name="robot" type="ref" refType="RobotShapeInfo" des="机器人形象信息"></field>
+	</ref>
+	<ref name="ArenaCardInfo" des="竞技场卡牌信息">
+		<field name="id" type="int" des="卡牌id" />
+		<field name="level" type="int" des="卡牌等级" />
+		<field name="star" type="int" des="卡牌星级" />
+		<field name="evo" type="byte" des="0未进化1进化" />
+	</ref>
+	<ref name="ArenaDayAwardInfo" des="竞技场每日奖励信息">
+		<field name="id" type="int" des="奖励编号" />
+		<field name="status" type="int" des="0没有奖励1有奖励2已经领取" />
+		<field name="rank" type="int" des="昨日排名" />
+	</ref>
+	<ref name="ArenaRankInfo" des="竞技场排行信息">
+		<field name="rank" type="int" des="排名" />
+		<field name="player" type="ref" refType="PlayerShapeInfo" des="玩家形象信息"></field>
+		<field name="robot" type="ref" refType="RobotShapeInfo" des="机器人形象信息"></field>
+		<field name="cards" type="refArray" refType="ArenaCardInfo" des="卡牌信息"></field>
+	</ref>
+	<ref name="ThemeStoryInfo" des="主题剧情完成状态信息">
+		<field name="id" type="int" des="z主题剧情小节id" />
+		<field name="status" type="int" des="状态信息" />
+	</ref>
+	<ref name="ActiveStoryRankInfo" des="活动剧情排行信息">
+		<field name="rank" type="int" des="排名" />
+		<field name="count" type="int" des="对应数值" />
+		<field name="player" type="ref" refType="PlayerShapeInfo" des="玩家形象信息"></field>
+	</ref>
+</packets>

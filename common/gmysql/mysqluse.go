@@ -2,10 +2,6 @@ package gmysql
 
 import (
 	"database/sql"
-	"sync"
-
-	"github.com/yhhaiua/goserver/common/glog"
-	"github.com/yhhaiua/goserver/common/gredis"
 )
 
 //MysqlConfig 连接配置
@@ -72,45 +68,45 @@ func (mydb *MysqlDB) Create(dbname string) error {
 	return err
 }
 
-//SavetoRedis mysql转存数据到redis
-func (mydb *MysqlDB) SavetoRedis(redisConnect *gredis.RedisPacket, tablename string, endSync *sync.WaitGroup) {
-
-	go mydb.mysqltoredis(redisConnect, tablename, endSync)
-}
-
-func (mydb *MysqlDB) mysqltoredis(redisConnect *gredis.RedisPacket, tablename string, endSync *sync.WaitGroup) {
-
-	sQuery := "SELECT * FROM " + tablename
-	rows, err := mydb.Query(sQuery)
-
-	if err == nil {
-		defer rows.Close()
-		var Key, Value string
-
-		for rows.Next() {
-
-			err = rows.Scan(&Key, &Value)
-			if err != nil {
-				glog.Errorf("mysql读取错误 %s 2 %s", tablename, err)
-			} else {
-
-				//保存到redis
-				if redisConnect != nil {
-					redisKey := tablename + "_" + Key
-					redisConnect.Set(redisKey, Value)
-					glog.Infof("redis添加数据 %s, %s", redisKey, Value)
-				}
-			}
-		}
-
-	} else {
-
-		glog.Errorf("mysql读取错误 %s 1 %s", tablename, err)
-	}
-	if endSync != nil {
-		endSync.Done()
-	}
-}
+////SavetoRedis mysql转存数据到redis
+//func (mydb *MysqlDB) SavetoRedis(redisConnect *gredis.RedisPacket, tablename string, endSync *sync.WaitGroup) {
+//
+//	go mydb.mysqltoredis(redisConnect, tablename, endSync)
+//}
+//
+//func (mydb *MysqlDB) mysqltoredis(redisConnect *gredis.RedisPacket, tablename string, endSync *sync.WaitGroup) {
+//
+//	sQuery := "SELECT * FROM " + tablename
+//	rows, err := mydb.Query(sQuery)
+//
+//	if err == nil {
+//		defer rows.Close()
+//		var Key, Value string
+//
+//		for rows.Next() {
+//
+//			err = rows.Scan(&Key, &Value)
+//			if err != nil {
+//				glog.Errorf("mysql读取错误 %s 2 %s", tablename, err)
+//			} else {
+//
+//				//保存到redis
+//				if redisConnect != nil {
+//					redisKey := tablename + "_" + Key
+//					redisConnect.Set(redisKey, Value)
+//					glog.Infof("redis添加数据 %s, %s", redisKey, Value)
+//				}
+//			}
+//		}
+//
+//	} else {
+//
+//		glog.Errorf("mysql读取错误 %s 1 %s", tablename, err)
+//	}
+//	if endSync != nil {
+//		endSync.Done()
+//	}
+//}
 
 //Update mysql更新通用数据
 func (mydb *MysqlDB) Update(skey, svale, tablename string) (err error) {
