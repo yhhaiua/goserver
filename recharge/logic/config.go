@@ -3,8 +3,8 @@ package logic
 import (
 	"encoding/xml"
 	"github.com/yhhaiua/goserver/common/gjson"
-	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gredis"
+	"github.com/yhhaiua/goserver/common/log4go"
 	io "io/ioutil"
 	"strconv"
 )
@@ -35,13 +35,13 @@ func (Config *stJSONConfig) configInit() bool {
 	key := "recharge"
 	data, err := io.ReadFile(path)
 	if err != nil {
-		glog.Errorf("Failed to open config file '%s': %s\n", path, err)
+		log4go.Error("Failed to open config file '%s': %s\n", path, err)
 		return false
 	}
 
 	jsondata, err := gjson.NewJSONByte(data)
 	if err != nil {
-		glog.Errorf("Failed to NewJsonByte config file '%s': %s\n", path, err)
+		log4go.Error("Failed to NewJsonByte config file '%s': %s\n", path, err)
 		return false
 	}
 
@@ -69,16 +69,13 @@ func (Config *stJSONConfig) configInit() bool {
 				Config.mredisconfig.Maxidle = redata.Getint("idle")
 				Config.mredisconfig.Password = redata.Getstring("password")
 			} else {
-				glog.Errorf("Failed to redis config file '%s'", path)
+				log4go.Error("Failed to redis config file '%s'", path)
 				return false
 			}
 
 		} else {
-			glog.Errorf("Failed to config file '%s'", path)
+			log4go.Error("Failed to config file '%s'", path)
 			return false
-		}
-		if Config.nloglvl > 0 {
-			glog.Setloglvl(Config.nloglvl)
 		}
 	}
 
@@ -89,13 +86,13 @@ func (Config *stJSONConfig) configXml() bool {
 	path := "./config/charge.xml"
 	content, err := io.ReadFile(path)
 	if err != nil {
-		glog.Errorf("Failed to open config file '%s': %s\n", path, err)
+		log4go.Error("Failed to open config file '%s': %s\n", path, err)
 		return false
 	}
 	var tempConfig	 UnitConfig
 	err = xml.Unmarshal(content, &tempConfig)
 	if err != nil {
-		glog.Errorf("Failed to Unmarshal config file '%s': %s\n", path, err)
+		log4go.Error("Failed to Unmarshal config file '%s': %s\n", path, err)
 		return false
 	}
 	Config.chargeconfig = make(map[int]int)

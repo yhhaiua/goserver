@@ -9,7 +9,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/yhhaiua/goserver/common/gjson"
-	"github.com/yhhaiua/goserver/common/glog"
+	"github.com/yhhaiua/goserver/common/log4go"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -98,14 +98,14 @@ func (router *stWanba) inquiryRet(w http.ResponseWriter,r *http.Request,myrouter
 	cipherStr := md5Ctx.Sum(nil)
 	mysigon := hex.EncodeToString(cipherStr)
 	if(mysigon != sign){
-		glog.Errorf("md5 error : me:%s,client:%s",mysigon,sign)
+		log4go.Error("md5 error : me:%s,client:%s",mysigon,sign)
 		myrouter.send(w,-100,"md5 error")
 		return false,""
 	}
 	id,_:= strconv.Atoi(itemid)
 	value,ok := Instance().getMoney(id)
 	if !ok{
-		glog.Errorf("没有对应的商品:%s",itemid)
+		log4go.Error("没有对应的商品:%s",itemid)
 		myrouter.send(w,-100,"no item")
 		return false,""
 	}
@@ -114,7 +114,7 @@ func (router *stWanba) inquiryRet(w http.ResponseWriter,r *http.Request,myrouter
 	//if(info != nil){
 	//	jsondata, err := gjson.NewJSONByte(info)
 	//	if err != nil {
-	//		glog.Errorf("inquiryRet NewJsonByte: %s",err)
+	//		log4go.Error("inquiryRet NewJsonByte: %s",err)
 	//		myrouter.send(w,-100,"inquiryRet json error")
 	//		return false,""
 	//	}
@@ -176,7 +176,7 @@ func (router *stWanba) inquiry(openid,openkey,appid,userip,count,zoneid,pf strin
 
 	sendStr := "https://api.urlshare.cn/v3/user/get_playzone_userinfo?"+buffer.String()
 
-	glog.Infoln(sendStr)
+	log4go.Info(sendStr)
 
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -186,13 +186,13 @@ func (router *stWanba) inquiry(openid,openkey,appid,userip,count,zoneid,pf strin
 		defer req.Body.Close()
 		body, err := ioutil.ReadAll(req.Body)
 		if err == nil {
-			glog.Infoln(string(body))
+			log4go.Info(string(body))
 			return body
 		}else{
-			glog.Errorf("error2:%s",err)
+			log4go.Error("error2:%s",err)
 		}
 	}else{
-		glog.Errorf("error1:%s",err)
+		log4go.Error("error1:%s",err)
 	}
 	return nil
 }
@@ -245,7 +245,7 @@ func (router *stWanba)deductionRet(w http.ResponseWriter, r *http.Request,myrout
 	if(info != nil){
 		jsondata, err := gjson.NewJSONByte(info)
 		if err != nil {
-			glog.Errorf("deductionRet NewJsonByte: %s",err)
+			log4go.Error("deductionRet NewJsonByte: %s",err)
 			myrouter.send(w,-100,"deductionRet json error")
 			return false
 		}
@@ -318,23 +318,24 @@ func (router *stWanba)deduction(openid,openkey,appid,userip,zoneid,money,billno,
 	buffer.WriteString(sig)
 
 	sendStr := "https://api.urlshare.cn/v3/user/buy_playzone_item?" + buffer.String()
-	glog.Infoln(sendStr)
+	log4go.Info(sendStr)
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
+	//req, err := client.Get(sendStr)
 	req, err := client.Post("https://api.urlshare.cn/v3/user/buy_playzone_item","application/x-www-form-urlencoded",&buffer)
 	if err == nil {
 		defer req.Body.Close()
 		body, err := ioutil.ReadAll(req.Body)
 		if err == nil {
-			glog.Infoln(string(body))
+			log4go.Info(string(body))
 			return body
 		}else{
-			glog.Errorf("deduction error2:%s",err)
+			log4go.Error("deduction error2:%s",err)
 		}
 	}else{
-		glog.Errorf("deduction error1:%s",err)
+		log4go.Error("deduction error1:%s",err)
 	}
 	return nil
 }
@@ -346,7 +347,7 @@ func (router *stWanba)makeUpOrder(w http.ResponseWriter, r *http.Request,back *s
 	id,_:= strconv.Atoi(itemid)
 	value,ok := Instance().getMoney(id)
 	if !ok{
-		glog.Errorf("没有对应的商品:%s",itemid)
+		log4go.Error("没有对应的商品:%s",itemid)
 		back.send(w,-100,"no item")
 		return
 	}

@@ -6,8 +6,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/grouter"
+	"github.com/yhhaiua/goserver/common/log4go"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -62,7 +62,7 @@ func (myrouter *stRouterPost) rechargeDeal(w http.ResponseWriter, r *http.Reques
 		//玩吧渠道
 		myrouter.wanbaDeal.rechargeDeal(w,r,myrouter)
 	default:
-		glog.Errorf("错误渠道请求:%s",operatorid)
+		log4go.Error("错误渠道请求:%s",operatorid)
 		myrouter.send(w,-100," operatorid no have error")
 	}
 }
@@ -128,7 +128,7 @@ func (myrouter *stRouterPost) sendgm(routers,orderId,money,goodsId,playerId stri
 	buffer.WriteString(stime)
 	buffer.WriteString("&sign=")
 	buffer.WriteString(mysigon)
-	glog.Infof(buffer.String())
+	log4go.Info(buffer.String())
 
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -139,12 +139,12 @@ func (myrouter *stRouterPost) sendgm(routers,orderId,money,goodsId,playerId stri
 		body, err := ioutil.ReadAll(req.Body)
 		if err == nil {
 			valueRet := string(body)
-			glog.Infof(valueRet)
+			log4go.Info(valueRet)
 			if valueRet == "ok"{
 				success = 0
 				errorStr = orderId+":ok"
 			}else{
-				glog.Errorf("订单号:orderId:%s,充值错误返回:%s",orderId,valueRet)
+				log4go.Error("订单号:orderId:%s,充值错误返回:%s",orderId,valueRet)
 				errorStr = orderId+":"+valueRet
 				if valueRet == "-2"{
 					success = -1
@@ -153,12 +153,12 @@ func (myrouter *stRouterPost) sendgm(routers,orderId,money,goodsId,playerId stri
 				}
 			}
 		}else{
-			glog.Errorf("sendgm error2 订单号:orderId:%s,error:%s",orderId,err)
+			log4go.Error("sendgm error2 订单号:orderId:%s,error:%s",orderId,err)
 			success = 1
 			errorStr = orderId+":-10002"
 		}
 	}else{
-		glog.Errorf("sendgm error1 订单号:orderId:%s,error:%s",orderId,err)
+		log4go.Error("sendgm error1 订单号:orderId:%s,error:%s",orderId,err)
 		success = -1
 		errorStr = orderId+":-10001"
 	}
@@ -176,11 +176,11 @@ func (myrouter *stRouterPost) errorSave(orderId,money,goodsId,playerId,erorinfo 
 
 	RedisMessage, err := json.Marshal(charge)
 	if err == nil {
-		glog.Infof("保存错误订单数据%s",RedisMessage)
+		log4go.Info("保存错误订单数据%s",RedisMessage)
 		Key:= "ReCharge:" + orderId
 		err = Instance().redisdb().Set(Key, RedisMessage)
 		if err != nil {
-			glog.Errorf("errorSave error1:%s",err)
+			log4go.Error("errorSave error1:%s",err)
 		}
 	}
 }
@@ -193,10 +193,10 @@ func (myrouter *stRouterPost) testsend(src string) {
 	data.At.IsAtAll = true
 	b, err := json.Marshal(data)
 	if err != nil {
-		glog.Errorf("json:%s", err)
+		log4go.Error("json:%s", err)
 		return
 	}
-	glog.Infof("send content :%s", string(b))
+	log4go.Info("send content :%s", string(b))
 
 	body := bytes.NewBuffer(b)
 
@@ -206,14 +206,14 @@ func (myrouter *stRouterPost) testsend(src string) {
 
 	res, err := client.Post("https://oapi.dingtalk.com/robot/send?access_token=2eb8253aae5237588004af68512f5fa6205fe2f6b4f08fc15d603287e0376d40", "application/json;charset=utf-8", body)
 	if err != nil {
-		glog.Errorf("testsend error1:%s", err)
+		log4go.Error("testsend error1:%s", err)
 		return
 	}
 	result, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
-		glog.Errorf("testsend error2:%s", err)
+		log4go.Error("testsend error2:%s", err)
 		return
 	}
-	glog.Infof("testsend :%s", result)
+	log4go.Info("testsend :%s", result)
 }

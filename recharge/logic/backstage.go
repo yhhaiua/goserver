@@ -5,8 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/grouter"
+	"github.com/yhhaiua/goserver/common/log4go"
 	"net/http"
 )
 
@@ -22,7 +22,7 @@ func (back *stBackstage) stopCharge(w http.ResponseWriter, r *http.Request, _ gr
 	stype := r.FormValue("type")
 
 	if operatorid != Instance().mstJSONConfig.operatorid{
-		glog.Errorf("stopCharge operatorid error : me:%s,client:%s,操作人:%s",Instance().mstJSONConfig.operatorid,operatorid,Instance().getUserIp(r))
+		log4go.Error("stopCharge operatorid error : me:%s,client:%s,操作人:%s",Instance().mstJSONConfig.operatorid,operatorid,Instance().getUserIp(r))
 		back.send(w,-100,"operatorid error")
 		return
 	}
@@ -33,20 +33,20 @@ func (back *stBackstage) stopCharge(w http.ResponseWriter, r *http.Request, _ gr
 	cipherStr := md5Ctx.Sum(nil)
 	mysigon := hex.EncodeToString(cipherStr)
 	if(mysigon != sign){
-		glog.Errorf("stopCharge md5 error : me:%s,client:%s,操作人:%s",mysigon,sign,Instance().getUserIp(r))
+		log4go.Error("stopCharge md5 error : me:%s,client:%s,操作人:%s",mysigon,sign,Instance().getUserIp(r))
 		back.send(w,-100,"md5 error")
 		return
 	}
 	if stype == "1"{
 		Instance().stopRecharge = true
-		glog.Infof("stopCharge stop success : 操作人:%s",Instance().getUserIp(r))
+		log4go.Info("stopCharge stop success : 操作人:%s",Instance().getUserIp(r))
 		back.send(w,0,"stop success")
 	}else if stype == "0"{
 		Instance().stopRecharge = false
-		glog.Infof("stopCharge open success : 操作人:%s",Instance().getUserIp(r))
+		log4go.Info("stopCharge open success : 操作人:%s",Instance().getUserIp(r))
 		back.send(w,0,"open success")
 	}else{
-		glog.Errorf("stopCharge stype error :client:%s,操作人:%s",stype,Instance().getUserIp(r))
+		log4go.Error("stopCharge stype error :client:%s,操作人:%s",stype,Instance().getUserIp(r))
 		back.send(w,-100,"stype error")
 	}
 }
@@ -60,7 +60,7 @@ func (back *stBackstage)makeUpOrder(w http.ResponseWriter, r *http.Request, _ gr
 	playerid := r.FormValue("playerid")
 
 	if operatorid != Instance().mstJSONConfig.operatorid{
-		glog.Errorf("makeUpOrder operatorid error : me:%s,client:%s,操作人:%s",Instance().mstJSONConfig.operatorid,operatorid,Instance().getUserIp(r))
+		log4go.Error("makeUpOrder operatorid error : me:%s,client:%s,操作人:%s",Instance().mstJSONConfig.operatorid,operatorid,Instance().getUserIp(r))
 		back.send(w,-100,"operatorid error")
 		return
 	}
@@ -71,17 +71,17 @@ func (back *stBackstage)makeUpOrder(w http.ResponseWriter, r *http.Request, _ gr
 	cipherStr := md5Ctx.Sum(nil)
 	mysigon := hex.EncodeToString(cipherStr)
 	if(mysigon != sign){
-		glog.Errorf("makeUpOrder md5 error : me:%s,client:%s,操作人:%s",mysigon,sign,Instance().getUserIp(r))
+		log4go.Error("makeUpOrder md5 error : me:%s,client:%s,操作人:%s",mysigon,sign,Instance().getUserIp(r))
 		back.send(w,-100,"md5 error")
 		return
 	}
-	glog.Infof("makeUpOrder success : 操作人:%s",Instance().getUserIp(r))
+	log4go.Info("makeUpOrder success : 操作人:%s",Instance().getUserIp(r))
 	switch operatorid {
 	case "1":
 		//玩吧渠道
 		Instance().routerConnect.wanbaDeal.makeUpOrder(w,r,back)
 	default:
-		glog.Errorf("错误渠道请求:%s",operatorid)
+		log4go.Error("错误渠道请求:%s",operatorid)
 		back.send(w,-100," operatorid no have error")
 	}
 }

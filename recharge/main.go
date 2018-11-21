@@ -1,20 +1,18 @@
 package main
 
 import (
-	"github.com/yhhaiua/goserver/common/glog"
-	"github.com/yhhaiua/goserver/recharge/logic"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/yhhaiua/goserver/common/log4go"
+	"github.com/yhhaiua/goserver/recharge/logic"
 )
 
 func main() {
 
-	sdir := "./logs/"
-	glog.SetlogDir(sdir)
+	log4go.LoadConfiguration("config/log4j.xml")
 
 	if logic.Instance().LogicInit(){
-		glog.Infof("recharge 启动成功")
+		log4go.Info("recharge 启动成功")
 	}else{
-		glog.Infof("recharge 启动失败")
+		log4go.Error("recharge 启动失败")
 	}
-	glog.Flush()
 }

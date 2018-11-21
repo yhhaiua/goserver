@@ -1,9 +1,9 @@
 package logic
 
 import (
-	"github.com/yhhaiua/goserver/common/glog"
 	"github.com/yhhaiua/goserver/common/gredis"
 	"github.com/yhhaiua/goserver/common/grouter"
+	"github.com/yhhaiua/goserver/common/log4go"
 	"net/http"
 	"sync"
 	"time"
@@ -54,10 +54,10 @@ func (logic *LogicSvr) redisCon() {
 		logic.redisConnect, err = gredis.NewRedis(&logic.mstJSONConfig.mredisconfig)
 
 		if err == nil {
-			glog.Infof("redis连接成功%s", logic.mstJSONConfig.mredisconfig.Shostport)
+			log4go.Info("redis连接成功%s", logic.mstJSONConfig.mredisconfig.Shostport)
 			break
 		} else {
-			glog.Errorf("redis连接错误%s，等待5秒后再次连接 %s", logic.mstJSONConfig.mredisconfig.Shostport, err)
+			log4go.Error("redis连接错误%s，等待5秒后再次连接 %s", logic.mstJSONConfig.mredisconfig.Shostport, err)
 			time.Sleep(5 * time.Second)
 		}
 	}
@@ -72,8 +72,8 @@ func (logic *LogicSvr) routerInit() bool{
 	router.GET("/stopcharge", logic.backConnect.stopCharge)
 	router.GET("/makeuporder", logic.backConnect.makeUpOrder)
 
-	glog.Infof("http监听开启%s", logic.mstJSONConfig.sport)
-	glog.Infoln("当前版本:v1.0.1")
+	log4go.Info("http监听开启%s", logic.mstJSONConfig.sport)
+	log4go.Info("当前版本:v1.0.7")
 
 	srv := &http.Server{
 		ReadTimeout: 30 * time.Second,
@@ -84,7 +84,7 @@ func (logic *LogicSvr) routerInit() bool{
 
 	err := srv.ListenAndServe()
 	if err != nil {
-		glog.Errorf("http监听失败 %s", err)
+		log4go.Error("http监听失败 %s", err)
 		return false
 	}
 	return true
