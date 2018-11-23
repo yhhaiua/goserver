@@ -263,6 +263,9 @@ func (router *stWanba)deductionRet(w http.ResponseWriter, r *http.Request,myrout
 					myrouter.send(w,-100,strconv.Itoa(code)+","+message)
 				}
 			}else{
+				if message == ""{
+					message = jsondata.Getstring("msg")
+				}
 				myrouter.send(w,-100,strconv.Itoa(code)+","+message)
 			}
 

@@ -73,7 +73,7 @@ func (logic *LogicSvr) routerInit() bool{
 	router.GET("/makeuporder", logic.backConnect.makeUpOrder)
 
 	log4go.Info("http监听开启%s", logic.mstJSONConfig.sport)
-	log4go.Info("当前版本:v1.0.7")
+	log4go.Info("当前版本:v1.0.8")
 
 	srv := &http.Server{
 		ReadTimeout: 30 * time.Second,

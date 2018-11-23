@@ -106,7 +106,7 @@ func (j *Js) Getint(key string) int {
 			return int(m)
 		}
 	}
-	return 0
+	return -1
 }
 
 //Getbool 通过key获取bool

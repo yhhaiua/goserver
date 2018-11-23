@@ -139,10 +139,10 @@ func (myrouter *stRouterPost) sendgm(routers,orderId,money,goodsId,playerId stri
 		body, err := ioutil.ReadAll(req.Body)
 		if err == nil {
 			valueRet := string(body)
-			log4go.Info(valueRet)
 			if valueRet == "ok"{
 				success = 0
 				errorStr = orderId+":ok"
+				log4go.Info(errorStr)
 			}else{
 				log4go.Error("订单号:orderId:%s,充值错误返回:%s",orderId,valueRet)
 				errorStr = orderId+":"+valueRet
